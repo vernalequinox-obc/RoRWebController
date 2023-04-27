@@ -1,0 +1,40 @@
+html {
+  font-family: Helvetica;
+  display: inline-block;
+  margin: 0px auto;
+  text-align: center;
+}
+
+h1 {
+  color: #0F3376;
+  font-size: 4vw;
+}
+
+img {
+  padding: 0;
+  display: block;
+  margin: 0 auto;
+  max-height: 80%;
+  max-width: 80%;
+}
+
+#item {
+  --scale-value: 1;
+  margin: auto;
+  width: 50px;
+  height: 50px;
+  background-color: green;
+  border: 10px solid #0066CC;
+  border-radius: 50%;
+  transform: scale3d(var(--scale-value), var(--scale-value), 1);
+  transition: transform cubic-bezier(0.175, 0.885, 0.32, 1.275) 0s;
+}
+
+#item:active {
+  border-color: #003A75;
+  background-color: #F2F5EA;
+}
+
+#item:hover {
+  cursor: pointer;
+}

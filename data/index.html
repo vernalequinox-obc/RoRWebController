@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="author" content="Jessie Gentry">
+  <meta name="description" content="ROR Web Controller">
+  <title>ROR Web Controller</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script src="index.js"></script>
+</head>
+
+<body>
+  <h1>ROR Web Controller</h1>
+  <img src="RORClosed">
+  <p>ROR state: <strong> %STATE%</strong></p>
+  <div id="item">
+  </div>
+  <div class="content">
+    <div class="cards">
+	<h4><i class="fas fa-thermometer-half"></i> TEMPERATURE</h4>
+	<p><span class="reading"><span id="temp">%TEMPERATURE%</span> &deg;F</span></p>
+	<h4><i class="fas fa-tint"></i> HUMIDITY</h4>
+	<p><span class="reading"><span id="hum">%HUMIDITY%</span> &percnt;</span></p>
+	<h4><i class="fas fa-angle-double-down"></i> PRESSURE</h4>
+	<p><span class="reading"><span id="pres">%PRESSURE%</span> hPa</span></p>
+    </div>
+  </div>
+</body>
+</html>
