@@ -1,7 +1,7 @@
 # RORWebController
 
 ESP32 Roll Off Roof Controller
-This project aims to update the existing Arduino setup on a Roll Off Roof observatory with a new ESP32-based controller. The ESP32 will replace the current Arduino program and provide additional features, such as a web server and weather sensor.
+This project aims to update the existing Arduino setup on a Roll Off Roof observatory with a new ESP32-based controller. The ESP32 will replace the current Arduino program and provide additional features, such as a web server, air conditioner control and weather sensor.
 
 The new controller will have the same functionality as the existing Arduino program, including controlling a Scope Mount Safe, Open and Close roof switch, Aleko AR950  gate opener, and ASCOM.
 
