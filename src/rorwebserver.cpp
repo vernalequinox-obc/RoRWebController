@@ -8,8 +8,8 @@ RORWebServer::RORWebServer()
   server = new AsyncWebServer(80);
 
   // Set up WiFi configuration
-  ssid = "Gentry2";
-  password = "LittleJack";
+  ssid = "SSID";
+  password = "Password";
   local_IP = IPAddress(192, 168, 0, 219);
   gateway = IPAddress(192, 168, 0, 1);
   subnet = IPAddress(255, 255, 255, 0);
