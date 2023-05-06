@@ -4,15 +4,11 @@
 RORWebServer::RORWebServer()
 {
   // Initialize global objects
-  events = new AsyncEventSource("/events");
-  server = new AsyncWebServer(80);
+  rorWebServer = new AsyncWebServer(HTTP_PORT);
+  rorWebSocket = new AsyncWebSocket("/rorWebSocket");
 
   // Set up WiFi configuration
-  ssid = "Gentry2";
-  password = "LittleJack";
-  local_IP = IPAddress(192, 168, 0, 219);
-  gateway = IPAddress(192, 168, 0, 1);
-  subnet = IPAddress(255, 255, 255, 0);
+
 
   // Set debug flag
   debug = false;
@@ -21,34 +17,43 @@ RORWebServer::RORWebServer()
 // Destructor
 RORWebServer::~RORWebServer()
 {
-  delete events;
-  delete server;
+  delete rorWebSocket;
+  delete rorWebServer;
 }
 
-// Connect to WiFi and start server
-void RORWebServer::startServer()
+boolean RORWebServer::connectToWiFi()
 {
   // Connect to WiFi
   if (!WiFi.config(local_IP, gateway, subnet))
   {
     Serial.println("STA Failed to configure");
+    return false;
   }
   WiFi.begin(ssid, password);
+  Serial.println("Connecting to WiFi..");
   while (WiFi.status() != WL_CONNECTED)
   {
+    Serial.print(".");
     delay(1000);
-    Serial.println("Connecting to WiFi..");
   }
+  Serial.printf(" %s\n", WiFi.localIP().toString().c_str());
+  return true;
+}
 
-  // Initialize the server and set up handlers for each route
-  server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-             { request->send(SPIFFS, "/index.html", String(), false, ROR_Controller::processor); });
+// Connect to WiFi and start rorWebServer
+void RORWebServer::startRORWebServer()
+{
+  // Initialize the rorWebServer and set up handlers for each route
+  rorWebServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+                   { request->send(SPIFFS, "/index.html", String(), false, ROR_Controller::processor); });
 
-  server->on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request)
-             { request->send(SPIFFS, "/style.css", "text/css"); });
+  rorWebServer->on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request)
+                   { request->send(SPIFFS, "/style.css", "text/css"); });
 
- // Start the server
-  server->begin();
+  rorWebServer->serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+
+  // Start the rorWebServer
+  rorWebServer->begin();
 }
 
 // Send BME280 sensor readings over event source
@@ -64,9 +69,4 @@ void RORWebServer::sendBME280Events(SensorBMe280_Struct aSensorReadingStrut)
     Serial.println("rorwebserver -> RORWebServer::sendBME280Events() sensorReadingStrut.f_humidity : " + hum);
     Serial.println("rorwebserver -> RORWebServer::sendBME280Events() sensorReadingStrut.f_pressure : " + press);
   }
-
-  events->send("ping", NULL, millis());
-  events->send(String(aSensorReadingStrut.f_temperature).c_str(), "temperature", millis());
-  events->send(String(aSensorReadingStrut.f_humidity).c_str(), "humidity", millis());
-  events->send(String(aSensorReadingStrut.f_pressure).c_str(), "pressure", millis());
 }

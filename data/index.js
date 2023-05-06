@@ -33,10 +33,11 @@ if (!!window.EventSource) {
     source.addEventListener('temperature', function (e) {console.log("temperature", e.data);document.getElementById("temp").innerHTML = e.data;}, false);
     source.addEventListener('humidity', function (e) {console.log("humidity", e.data);document.getElementById("hum").innerHTML = e.data;}, false);
     source.addEventListener('pressure', function (e) {console.log("pressure", e.data);document.getElementById("pres").innerHTML = e.data;}, false);
-  }
+}
 
+window.onload=function(){ 
 
-    let dragItem = document.querySelector("#item");
+    let dragItem = document.querySelector("#buttonID");
     let pressHoldEvent = new CustomEvent("pressHold");
 
     let timePressed = 0;
@@ -114,3 +115,4 @@ if (!!window.EventSource) {
     function doSomething(e) {
       console.log("pressHold event fired!");
     }
+}

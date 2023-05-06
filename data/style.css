@@ -7,8 +7,22 @@ html {
 
 h1 {
   color: #0F3376;
-  font-size: 4vw;
+  font-size: 3vw;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
+.container { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+} 
+ 
+.box { 
+  width: 100%; 
+  height: 100%; 
+  background-color: white; 
+  margin: 10px; 
+  box-shadow: 0 0.5em 1em rgba(102, 0, 0, 0.3);
+} 
 
 img {
   padding: 0;
@@ -16,9 +30,10 @@ img {
   margin: 0 auto;
   max-height: 80%;
   max-width: 80%;
+  border: 2px solid #0066CC;
 }
 
-#item {
+#buttonID {
   --scale-value: 1;
   margin: auto;
   width: 50px;
@@ -28,13 +43,16 @@ img {
   border-radius: 50%;
   transform: scale3d(var(--scale-value), var(--scale-value), 1);
   transition: transform cubic-bezier(0.175, 0.885, 0.32, 1.275) 0s;
+  box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.3);
 }
 
-#item:active {
+#buttonID:active {
   border-color: #003A75;
   background-color: #F2F5EA;
 }
 
-#item:hover {
+#buttonID:hover {
   cursor: pointer;
 }
+
+

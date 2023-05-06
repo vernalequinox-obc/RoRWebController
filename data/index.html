@@ -15,19 +15,28 @@
 
 <body>
   <h1>ROR Web Controller</h1>
-  <img src="RORClosed">
-  <p>ROR state: <strong> %STATE%</strong></p>
-  <div id="item">
-  </div>
-  <div class="content">
-    <div class="cards">
-	<h4><i class="fas fa-thermometer-half"></i> TEMPERATURE</h4>
-	<p><span class="reading"><span id="temp">%TEMPERATURE%</span> &deg;F</span></p>
-	<h4><i class="fas fa-tint"></i> HUMIDITY</h4>
-	<p><span class="reading"><span id="hum">%HUMIDITY%</span> &percnt;</span></p>
-	<h4><i class="fas fa-angle-double-down"></i> PRESSURE</h4>
-	<p><span class="reading"><span id="pres">%PRESSURE%</span> hPa</span></p>
+  <div style="display: flex; justify-content: center;">
+
+<div class="container"> 
+
+ <div class="box">
+  <div style="border: 2px solid black; width: 500; padding: 20px;">
+        <img src="RORClosed.jpg" style="width: 419px;">
+        <p>ROR state: <strong> %RORPOSITION%</strong></p>
+        <div id="buttonID"></div>
+
     </div>
+ </div>
+
+ <div class="box">
+  <div style="border: 2px solid black; width: 500; padding: 20px;">
+    <h5><i class="fas fa-thermometer-half"></i> TEMPERATURE: <span class="reading"><span id="temp">%TEMPERATURE%</span> &deg;F</span></h5>
+    <h5><i class="fas fa-tint"></i> HUMIDITY: <span class="reading"><span id="hum">%HUMIDITY%</span> &percnt;</span></h5>
+    <h5><i class="fas fa-angle-double-down"></i> PRESSURE: <span class="reading"><span id="pres">%PRESSURE%</span> hPa</span></h5>
   </div>
+</div>
+</div>
+
 </body>
+
 </html>
