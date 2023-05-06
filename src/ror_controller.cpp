@@ -14,21 +14,23 @@ ROR_Controller::~ROR_Controller()
 }
 
 // Replaces placeholder with LED state value
-String ROR_Controller::processor(const String &var)
+String ROR_Controller::getRORPosistion()
 {
-  Serial.println(var);
-  if (var == "STATE")
-  {
-    if (digitalRead(ROR_Controller::ledPin))
-    {
-      Serial.print("Open");
-      return("Open");
-    }
-    else
-    {
-      Serial.print("Closed");
-      return("Closed");
-    }
+  int statusINT = millis() % 1000 < 50;
+  String statusStr = "Not Selected";
+  switch(statusINT) {
+    case 0:
+      statusStr = "Closed";
+      break;
+    case 1:
+      statusStr = "Opened";
+      break;
+    case 2:
+      statusStr = "Moving";
+      break;
+    default:
+      statusStr = "Unknown";
+
   }
-  return String();
+  return statusStr;
 }

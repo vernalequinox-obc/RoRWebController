@@ -5,14 +5,16 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #define SEALEVELPRESSURE_HPA (1013.25)
+#define XMETERTOFEET 3.28084
 
 
 struct SensorBMe280_Struct
 {
-    float f_temperature;
-    float f_humidity;
-    float f_pressure;
-    float f_altitude; 
+    String temperature;
+    String humidity;
+    String pressure;
+    String altitudeMeter; 
+    String altitudeFeet;
 };
 
 class SensorReadings {
@@ -20,8 +22,7 @@ public:
     SensorReadings();
     ~SensorReadings();
     bool begin();
-    SensorBMe280_Struct getBME280Readings(SensorBMe280_Struct aStrut);
-    static String processor(const String &var);
+    void getBME280Readings(SensorBMe280_Struct *aStrut);
     SensorBMe280_Struct sensorReadingStrut;
     
 private:

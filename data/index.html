@@ -22,7 +22,7 @@
  <div class="box">
   <div style="border: 2px solid black; width: 500; padding: 20px;">
         <img src="RORClosed.jpg" style="width: 419px;">
-        <p>ROR state: <strong> %RORPOSITION%</strong></p>
+        <p>ROR state: <span class="reading"><span id="rorpositionID"> <strong>%RORPOSITION%</strong></span></span></p>
         <div id="buttonID"></div>
 
     </div>
@@ -30,9 +30,10 @@
 
  <div class="box">
   <div style="border: 2px solid black; width: 500; padding: 20px;">
-    <h5><i class="fas fa-thermometer-half"></i> TEMPERATURE: <span class="reading"><span id="temp">%TEMPERATURE%</span> &deg;F</span></h5>
-    <h5><i class="fas fa-tint"></i> HUMIDITY: <span class="reading"><span id="hum">%HUMIDITY%</span> &percnt;</span></h5>
-    <h5><i class="fas fa-angle-double-down"></i> PRESSURE: <span class="reading"><span id="pres">%PRESSURE%</span> hPa</span></h5>
+    <h5>TEMPERATURE: <span class="reading"><span id="temperatureID">%TEMPERATURE%</span> &deg;F</span></h5>
+    <h5>HUMIDITY: <span class="reading"><span id="humidityID">%HUMIDITY%</span> &percnt;</span></h5>
+    <h5>PRESSURE: <span class="reading"><span id="pressureID">%PRESSURE%</span> hPa</span></h5>
+    <h5>ALTITUDE: <span class="reading"><span id="altitudeMeterID">%ALTITUDEMETERS%</span>M  -- </span><span id="altitudeFeetID">%ALTITUDEFEET%</span>Ft</span></h5>
   </div>
 </div>
 </div>

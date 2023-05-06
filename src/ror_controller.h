@@ -1,14 +1,29 @@
 #ifndef ROR_CONTROLLER_H
 #define ROR_CONTROLLER_H
 
-#include <Arduino.h>
+#include "settings.h"
+
+
+struct RoofStatusStruct
+{
+    // state variables
+    uint8_t pin;
+    bool on;
+
+    // methods
+    void update()
+    {
+        on = digitalRead(RORSTATUS_PIN);
+    }
+};
 
 
 class ROR_Controller {
     public:
         ROR_Controller();
         ~ROR_Controller();
-        static String processor(const String &var);
+        String getRORPosistion();
+        RoofStatusStruct rorStatusStruct;
 
   private:
         boolean debug;

@@ -3,16 +3,112 @@
 #include "sensor_readings.h"
 #include "settings.h"
 #include "rorwebserver.h"
+#include "configwifisetup.h"
 
+ConfigWiFiSetup configWiFiSetup;
 SensorReadings sensorBME280Readings;
 RORWebServer rorWebServer;
 SensorBMe280_Struct mainSensorStruct;
-
-bool debug = false;
+ROR_Controller rorController;
+String rorPositionStatusStr = "";
+int pushDownCounter = 0;
+boolean runAccessPointSetupMode = false; // is true every time the board is started as Access Point
+boolean debugMain = true;
 
 // BME280 Loop timers
 unsigned long lastTime = 0;
-unsigned long timerDelay = 30000; // send readings timer
+unsigned long timerDelay = 3000; // send readings timer
+
+void runGetUpdatesSendThemToClients();
+void initBME280();
+void initSPIFFS();
+void initWebServer();
+void updateBME280Reading();
+void updateRORPosition();
+void loop();
+
+const int LONG_PRESS_TIME = 3000; // 1000 milliseconds
+
+int lastState = LOW; // the previous state from the input pin
+int currentState;    // the current reading from the input pin
+unsigned long pressedTime = 0;
+bool isPressing = false;
+bool isLongDetected = false;
+
+void checkIfModeButtonPushed()
+{
+  currentState = digitalRead(APSETUP_BUTTON_PIN); // read the state of the switch/button:
+
+  if (lastState == HIGH && currentState == LOW)
+  { // button is pressed
+    pressedTime = millis();
+    isPressing = true;
+    isLongDetected = false;
+  }
+  else if (lastState == LOW && currentState == HIGH)
+  { // button is released
+    isPressing = false;
+  }
+
+  if (isPressing == true && isLongDetected == false)
+  {
+    long pressDuration = millis() - pressedTime;
+
+    if (pressDuration > LONG_PRESS_TIME)
+    {
+      if (debugMain)
+      {
+        Serial.println("A long press is detected");
+      }
+      isLongDetected = true;
+    }
+  }
+
+  lastState = currentState; // save the the last state
+}
+
+void setup()
+{
+  Serial.begin(115200);
+  if (debugMain)
+  {
+    Serial.println("maincpp:setup");
+  }
+  pinMode(APSETUP_BUTTON_PIN, INPUT);
+  pinMode(APSETUP_LED_PIN, OUTPUT);
+  initSPIFFS();
+
+  if (configWiFiSetup.isThereWiFiSetting())
+  {
+    initWebServer();
+    initBME280();
+    runGetUpdatesSendThemToClients();
+  }
+  else
+  {
+    if (debugMain)
+    {
+      Serial.println("maincpp:setup - run configWiFiSetup.runAPWebServerSetup() ");
+    }
+    configWiFiSetup.runAPWebServerSetup();
+  }
+}
+
+void loop()
+{
+  checkIfModeButtonPushed();
+  if (isLongDetected)
+  {
+    configWiFiSetup.clearWiFiSettings();
+    ESP.restart();
+  }
+  rorWebServer.cleanUpClients();
+  if ((millis() - lastTime) > timerDelay)
+  {
+    runGetUpdatesSendThemToClients();
+    lastTime = millis();
+  }
+}
 
 // ----------------------------------------------------------------------------
 // SPIFFS initialization
@@ -35,17 +131,25 @@ void initSPIFFS()
 void initWebServer()
 {
   // Set up the web server
-  if (debug)
+  if (debugMain)
   {
     Serial.println("Main.cpp -> initWebServer() rorWebServer.connectToWiFi() ");
   }
+  rorWebServer.setSSID(configWiFiSetup.getSSID().c_str());
+  rorWebServer.setPass(configWiFiSetup.getPass());
+  rorWebServer.setIP(configWiFiSetup.getIP());
+  rorWebServer.setSub(configWiFiSetup.getSub());
+  rorWebServer.setGateway(configWiFiSetup.getGateway());
   if (rorWebServer.connectToWiFi())
   {
     Serial.println("Main.cpp -> initWebServer() rorWebServer.startRORWebServer() ");
-    rorWebServer.startRORWebServer();
+
+    rorWebServer.initWebServer();
+    rorWebServer.initWebSocket();
   }
-  else {
-        Serial.println("Main.cpp -> initWebServer() rorWebServer.connectToWiFi() Failed to Connect to WiFi");
+  else
+  {
+    Serial.println("Main.cpp -> initWebServer() rorWebServer.connectToWiFi() Failed to Connect to WiFi");
   }
 }
 
@@ -55,7 +159,7 @@ void initWebServer()
 
 void initBME280()
 {
-  if (debug)
+  if (debugMain)
   {
     Serial.println("Main.cpp -> Initialize BME280 sensor");
   }
@@ -70,34 +174,31 @@ void initBME280()
 // ----------------------------------------------------------------------------
 void updateBME280Reading()
 {
-  mainSensorStruct = sensorBME280Readings.getBME280Readings(mainSensorStruct);
-  if (debug)
+  sensorBME280Readings.getBME280Readings(&mainSensorStruct);
+  if (false)
   {
-    Serial.println("main.cpp->Loop()->sensorReadings.getBME280Readings()");
-    String temp = String(mainSensorStruct.f_temperature).c_str();
-    Serial.println("main.cpp->Loop()->sensorReadings.getBME280Readings() sensorBMEstrut.f_temperature: " + temp);
-    String hum = String(mainSensorStruct.f_humidity).c_str();
-    Serial.println("main.cpp->Loop()->sensorReadings.getBME280Readings() sensorBMEstrut.f_humidity : " + hum);
-    String press = String(mainSensorStruct.f_pressure).c_str();
-    Serial.println("main.cpp->Loop()->sensorReadings.getBME280Readings() sensorBMEstrut.f_pressure : " + press);
+    Serial.println("main::updateBME280Reading() mainSensorStruct.altitude: " + mainSensorStruct.altitudeMeter);
+    Serial.println("main::updateBME280Reading() mainSensorStruct.altitude: " + mainSensorStruct.altitudeFeet);
+    Serial.println("main::updateBME280Reading() mainSensorStruct.humidity : " + mainSensorStruct.humidity);
+    Serial.println("main::updateBME280Reading() mainSensorStruct.pressure : " + mainSensorStruct.pressure);
+    Serial.println("main::updateBME280Reading() mainSensorStruct.temperature : " + mainSensorStruct.temperature);
   }
-  // Send Events to the Web Server with the Sensor Readings
-  rorWebServer.sendBME280Events(mainSensorStruct);
 }
 
-void setup()
+void updateRORPosition()
 {
-  Serial.begin(115200);
-  initSPIFFS();
-  initWebServer();
-  initBME280();
+  rorPositionStatusStr = rorController.getRORPosistion();
+  if (true)
+  {
+    Serial.println("maincpp: updateRORPosition() RoRPosition: " + rorPositionStatusStr);
+  }
 }
 
-void loop()
+void runGetUpdatesSendThemToClients()
 {
-  if ((millis() - lastTime) > timerDelay)
-  {
-    updateBME280Reading();
-    lastTime = millis();
-  }
+  updateBME280Reading();
+  updateRORPosition();
+  rorWebServer.setJsonValues(mainSensorStruct, rorPositionStatusStr);
+  rorWebServer.cleanUpClients();
+  rorWebServer.notifyClients();
 }

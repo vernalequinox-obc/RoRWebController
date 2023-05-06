@@ -1,5 +1,6 @@
 
-var gateway = `ws://${window.location.hostname}/ws`;
+// var gateway = `rorWebSocket://${window.location.hostname}/rorWebSocket`;
+var gateway = `ws://${window.location.hostname}/rorWebSocket`;
 var websocket;
 
 // ----------------------------------------------------------------------------
@@ -21,18 +22,36 @@ function initWebSocket() {
     websocket = new WebSocket(gateway);
     websocket.onopen  = onOpen;
     websocket.onclose = onClose;
+    websocket.onmessage = onMessage;    
+    console.log('End Of - Trying to open a WebSocket connection...');   
 }
-// ----------------------------------------------------------------------------
-// Initialization
-if (!!window.EventSource) {
-    console.log("window.EventSource")
-    var source = new EventSource('/events');
-    source.addEventListener('open', function (e) {console.log("Events Connected");}, false);
-    source.addEventListener('error', function (e) {if (e.target.readyState != EventSource.OPEN) { console.log("Events Disconnected");}}, false);
-    source.addEventListener('message', function (e) {console.log("message", e.data);}, false);
-    source.addEventListener('temperature', function (e) {console.log("temperature", e.data);document.getElementById("temp").innerHTML = e.data;}, false);
-    source.addEventListener('humidity', function (e) {console.log("humidity", e.data);document.getElementById("hum").innerHTML = e.data;}, false);
-    source.addEventListener('pressure', function (e) {console.log("pressure", e.data);document.getElementById("pres").innerHTML = e.data;}, false);
+
+function onOpen(event) {
+  console.log('Connection opened');
+}
+
+function onClose(event) {
+  console.log('Connection closed');
+  setTimeout(initWebSocket, 2000);
+}
+
+
+function onMessage(event) {
+  console.log('onMessage JSON event');
+  var obj = JSON.parse(event.data);
+  document.getElementById('rorpositionID').innerHTML = obj.status["RoRPosition"];
+  document.getElementById('temperatureID').innerHTML = obj.status["temperature"];
+  document.getElementById('humidityID').innerHTML = obj.status["humidity"];
+  document.getElementById('pressureID').innerHTML = obj.status["pressure"];
+  document.getElementById('altitudeMeterID').innerHTML = obj.status["altitudeMeter"];  
+  document.getElementById('altitudeFeetID').innerHTML = obj.status["altitudeFeet"];    
+  console.log(obj.status["RoRPosition"]);
+  console.log(obj.status["temperature"]);
+  console.log(obj.status["humidity"]);
+  console.log(obj.status["pressure"]);
+  console.log(obj.status["altitudeMeter"]);
+  console.log(obj.status["altitudeFeet"]);
+
 }
 
 window.onload=function(){ 
