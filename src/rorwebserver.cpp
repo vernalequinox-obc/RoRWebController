@@ -8,14 +8,14 @@ RORWebServer::RORWebServer()
   rorWebSocket = new AsyncWebSocket("/rorWebSocket");
 
   // Set up WiFi configuration
-  ssid = "Gentry2";
-  password = "LittleJack";
+  ssid = "";
+  password = "";
   local_IP = IPAddress(192, 168, 0, 219);
   gateway = IPAddress(192, 168, 0, 1);
   subnet = IPAddress(255, 255, 255, 0);
 
-  // Set debug flag
-  debug = true;
+  // Set rorwebserverDebug flag
+  rorwebserverDebug = false;
 }
 
 // Destructor
@@ -102,9 +102,9 @@ void RORWebServer::initWebSocket()
 
 void RORWebServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
 {
-  if (debug)
+  if (rorwebserverDebug)
   {
-    Serial.printf("RORWebServer::onEvent()");
+    Serial.printf("RORWebServer::onEvent()\n");
   }
   switch (type)
   {
@@ -125,9 +125,9 @@ void RORWebServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
 
 void RORWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
 {
-  if (debug)
+  if (rorwebserverDebug)
   {
-    Serial.printf("RORWebServer::handleWebSocketMessage()");
+    Serial.printf("RORWebServer::handleWebSocketMessage() -> ");
   }
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
@@ -147,6 +147,11 @@ void RORWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     if (strcmp(action, "toggle") == 0)
     {
       // led.on = !led.on;
+      // Do somethings as the open roof button is pressed
+      if (true)
+      {
+        Serial.printf("Open Roof Button Triggered.\n ");
+      }
       notifyClients();
     }
   }
@@ -159,7 +164,7 @@ void RORWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
 */
 void RORWebServer::notifyClients()
 {
-  if (debug)
+  if (rorwebserverDebug)
   {
     Serial.printf("RORWebServer::notifyClients()");
   }
@@ -174,9 +179,8 @@ void RORWebServer::notifyClients()
   root["status"]["altitudeFeet"] = rorjasonstrut.altitudeFeet;
   root["status"]["RoRPosition"] = rorjasonstrut.RoRPosition;
 
-  if (debug)
+  if (rorwebserverDebug)
   {
-    Serial.println("RORWebServer::notifyClients()");
     Serial.println("RORWebServer::notifyClients() rorjasonstrut.altitudeMeter : " + rorjasonstrut.altitudeMeter);
     Serial.println("RORWebServer::notifyClients() rorjasonstrut.altitudeFeet : " + rorjasonstrut.altitudeFeet);
     Serial.println("RORWebServer::notifyClients() rorjasonstrut.humidity : " + rorjasonstrut.humidity);
@@ -188,7 +192,7 @@ void RORWebServer::notifyClients()
   char buffer[1024];
   size_t len = serializeJson(json, buffer);
 
-  if (debug)
+  if (rorwebserverDebug)
   {
     // Print buffer to Serial Monitor
     for (int i = 0; i < len; i++)
@@ -214,7 +218,7 @@ void RORWebServer::setJsonValues(SensorBMe280_Struct aSensorReadingStrut, String
   rorjasonstrut.temperature = aSensorReadingStrut.temperature;
   rorjasonstrut.RoRPosition = aRORPosition;
 
-  if (debug)
+  if (rorwebserverDebug)
   {
     Serial.println("RORWebServer::setJsonValues()");
     Serial.println("RORWebServer::setJsonValues() rorjasonstrut.altitudeMeter : " + rorjasonstrut.altitudeMeter);

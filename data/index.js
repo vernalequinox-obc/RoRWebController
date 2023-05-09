@@ -133,5 +133,6 @@ window.onload=function(){
 
     function doSomething(e) {
       console.log("pressHold event fired!");
+      websocket.send(JSON.stringify({'action':'toggle'}));
     }
 }

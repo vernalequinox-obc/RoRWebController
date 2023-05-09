@@ -13,7 +13,7 @@ ROR_Controller rorController;
 String rorPositionStatusStr = "";
 int pushDownCounter = 0;
 boolean runAccessPointSetupMode = false; // is true every time the board is started as Access Point
-boolean debugMain = true;
+boolean debugMain = false;
 
 // BME280 Loop timers
 unsigned long lastTime = 0;
@@ -22,7 +22,7 @@ unsigned long timerDelay = 3000; // send readings timer
 void runGetUpdatesSendThemToClients();
 void initBME280();
 void initSPIFFS();
-void initWebServer();
+bool initWebServer();
 void updateBME280Reading();
 void updateRORPosition();
 void loop();
@@ -34,6 +34,8 @@ int currentState;    // the current reading from the input pin
 unsigned long pressedTime = 0;
 bool isPressing = false;
 bool isLongDetected = false;
+LedStruct apModeLed = {APSETUP_LED_PIN, false};
+LedStruct localWiFIConnected = {NORMAL_WIFI_LED_PIN, false};
 
 void checkIfModeButtonPushed()
 {
@@ -75,14 +77,30 @@ void setup()
     Serial.println("maincpp:setup");
   }
   pinMode(APSETUP_BUTTON_PIN, INPUT);
+  // led lights when in the AP and network configure mode
   pinMode(APSETUP_LED_PIN, OUTPUT);
+  apModeLed.on = false;
+  apModeLed.update();
+  // led lights when in normal local network wifi mode
+  pinMode(NORMAL_WIFI_LED_PIN, OUTPUT);
+  localWiFIConnected.on = false;
+  localWiFIConnected.update();
   initSPIFFS();
 
   if (configWiFiSetup.isThereWiFiSetting())
   {
-    initWebServer();
-    initBME280();
-    runGetUpdatesSendThemToClients();
+    if (debugMain)
+    {
+      Serial.println("maincpp:setup - connect to local Wifi and Start Webserver");
+    }
+
+    if (initWebServer())
+    {
+      localWiFIConnected.on = true;
+      localWiFIConnected.update();
+      initBME280();
+      runGetUpdatesSendThemToClients();
+    }
   }
   else
   {
@@ -90,19 +108,26 @@ void setup()
     {
       Serial.println("maincpp:setup - run configWiFiSetup.runAPWebServerSetup() ");
     }
+    localWiFIConnected.on = false;
+    localWiFIConnected.update();
+    apModeLed.on = true;
+    apModeLed.update();
     configWiFiSetup.runAPWebServerSetup();
   }
 }
 
 void loop()
 {
+
   checkIfModeButtonPushed();
   if (isLongDetected)
   {
     configWiFiSetup.clearWiFiSettings();
     ESP.restart();
   }
+
   rorWebServer.cleanUpClients();
+
   if ((millis() - lastTime) > timerDelay)
   {
     runGetUpdatesSendThemToClients();
@@ -128,7 +153,7 @@ void initSPIFFS()
 // RORWebServer initialization
 // ----------------------------------------------------------------------------
 
-void initWebServer()
+bool initWebServer()
 {
   // Set up the web server
   if (debugMain)
@@ -143,14 +168,15 @@ void initWebServer()
   if (rorWebServer.connectToWiFi())
   {
     Serial.println("Main.cpp -> initWebServer() rorWebServer.startRORWebServer() ");
-
     rorWebServer.initWebServer();
     rorWebServer.initWebSocket();
+    return true;
   }
   else
   {
     Serial.println("Main.cpp -> initWebServer() rorWebServer.connectToWiFi() Failed to Connect to WiFi");
   }
+  return false;
 }
 
 // ----------------------------------------------------------------------------

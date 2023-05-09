@@ -43,7 +43,7 @@ private:
   IPAddress gateway;
   IPAddress subnet;
 
-  boolean debug;
+  boolean rorwebserverDebug;
   String sendString;
   RORJsonStruct rorjasonstrut = {"", "", "", "", "Closed"};
   RoofStatusStruct rorStatusStruct = {RORSTATUS_PIN, false};

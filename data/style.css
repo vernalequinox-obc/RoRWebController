@@ -36,8 +36,8 @@ img {
 #buttonID {
   --scale-value: 1;
   margin: auto;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   background-color: green;
   border: 10px solid #0066CC;
   border-radius: 50%;

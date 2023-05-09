@@ -1,15 +1,29 @@
 #include "configwifisetup.h"
 
 void notFound(AsyncWebServerRequest *request);
+void saveWiFiSettings();
+void writeFile(fs::FS &fs, const char *path, const char *message);
+String readFile(fs::FS &fs, const char *path);
+// File paths to save input values permanently
+const char *ssidPath = "/ssid.txt";
+const char *passPath = "/pass.txt";
+const char *ipPath = "/ip.txt";
+const char *subPath = "/sub.txt";
+const char *gatewayPath = "/gateway.txt";
 
 const char *PARAM_SSID = "ssid";
 const char *PARAM_PASS = "pass";
 const char *PARAM_IP = "ip";
 const char *PARAM_SUB = "sub";
 const char *PARAM_GATEWAY = "gateway";
-
+String ssid;
+String pass;
+String ip;
+String sub;
+String gateway;
+bool debugConfigWiFiSetup = true;
 AsyncWebServer serverAP(80);
-// HTML web page to handle 3 input fields (input1, input2, input3)
+
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
@@ -17,57 +31,73 @@ const char index_html[] PROGMEM = R"rawliteral(
   <title>ROR Wi-Fi Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="icon" href="data:,">
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
+<body>
+  <div class="topnav">
+    <h1>ROR Wi-Fi Manager</h1>
+  </div>
+  <div class="content">
+    <div class="card-grid">
+      <div class="card">
+        <form action="/" method="POST">
+          <p>
+            <label for="ssid">SSID:</label>
+            <input type="text" id ="ssid" name="ssid"><br>
+            <label for="pass">Password:</label>
+            <input type="text" id ="pass" name="pass"><br>
+            <label for="ip">IP Address:</label>
+            <input type="text" id ="ip" name="ip" value="192.168.0.200"><br>
+            <label for="sub">Subnet:</label>
+            <input type="text" id ="sub" name="sub" value="255.255.255.0"><br>
+            <label for="gateway">Gateway:</label>
+            <input type="text" id ="gateway" name="gateway" value="192.168.0.1"><br>
+            <input type ="submit" value ="Submit">
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
 <style>
 html {
   font-family: Arial, Helvetica, sans-serif; 
   display: inline-block; 
   text-align: center;
 }
-
 h1 {
   font-size: 1.5rem; 
   color: white;
 }
-
 p { 
   font-size: 1rem;
 }
-
 .topnav { 
   overflow: hidden; 
   background-color: #0A1128;
 }
-
 body {  
   margin: 0;
 }
-
 .content { 
   padding: 10px;
 }
-
 .card-grid { 
   max-width: 325px; 
   margin: 0 auto; 
   display: grid; 
   grid-template-columns: 300px;
 }
-
 .card { 
   background-color: white; 
   box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
   padding: 1px 1px;
 }
-
 .card-title { 
   font-size: 1.2rem;
   font-weight: bold;
   color: #034078
 }
-
 input[type=submit] {
   border: none;
   color: #FEFCFB;
@@ -82,11 +112,9 @@ input[type=submit] {
   border-radius: 4px;
   transition-duration: 0.4s;
   }
-
 input[type=submit]:hover {
   background-color: #1282A2;
 }
-
 input[type=text], input[type=number], select {
   width: 150px;
   padding: 8px 20px;
@@ -96,7 +124,6 @@ input[type=text], input[type=number], select {
   border-radius: 4px;
   box-sizing: border-box;
 }
-
 label {
   display: inline-block;
   width: 90px;
@@ -134,38 +161,16 @@ button {
   background-color: #252524;
 } 
 </style>
-<body>
-  <div class="topnav">
-    <h1>ROR Wi-Fi Manager</h1>
-  </div>
-  <div class="content">
-    <div class="card-grid">
-      <div class="card">
-        <form action="/" method="POST">
-          <p>
-            <label for="ssid">SSID:</label>
-            <input type="text" id ="ssid" name="ssid"><br>
-            <label for="pass">Password:</label>
-            <input type="text" id ="pass" name="pass"><br>
-            <label for="ip">IP Address:</label>
-            <input type="text" id ="ip" name="ip" value="192.168.0.200"><br>
-            <label for="sub">Subnet:</label>
-            <input type="text" id ="sub" name="sub" value="255.255.255.0"><br>
-            <label for="gateway">Gateway:</label>
-            <input type="text" id ="gateway" name="gateway" value="192.168.0.1"><br>
-            <input type ="submit" value ="Submit">
-          </p>
-        </form>
-      </div>
-    </div>
-  </div>
-</body>
 </html>
 )rawliteral";
 
 ConfigWiFiSetup::ConfigWiFiSetup()
 {
-  debugConfigWiFiSetup = true;
+  ssid = "";
+  pass = "";
+  ip = "";
+  sub = "";
+  gateway = "";
 }
 
 ConfigWiFiSetup::~ConfigWiFiSetup()
@@ -183,6 +188,7 @@ boolean ConfigWiFiSetup::isThereWiFiSetting()
   pass = readFile(SPIFFS, passPath);
   ip = readFile(SPIFFS, ipPath);
   gateway = readFile(SPIFFS, gatewayPath);
+  Serial.println("Read from memory: \nSSID: " + ssid + "\n  Pass: " + pass + "\n IP: " + ip + "\n  Sub: " + sub + "\n  Gateway: " + gateway);
   if (ssid == "" || ip == "")
   {
     if (debugConfigWiFiSetup)
@@ -239,55 +245,64 @@ boolean ConfigWiFiSetup::runAPWebServerSetup()
     Serial.println(WiFi.softAPIP());
   }
 
+  serverAP.onNotFound(notFound);
+
   // Send web page with input fields to client
   serverAP.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               { request->send_P(200, "text/html", index_html); });
 
   // Send a GET request to <ESP_IP>/get?input1=<inputMessage>
-  serverAP.on("/get", HTTP_GET, [](AsyncWebServerRequest *request)
+  serverAP.on("/", HTTP_POST, [](AsyncWebServerRequest *request)
               {
-    String inputMessage;
-    String inputParam;
-    // GET input1 value on <ESP_IP>/get?input1=<inputMessage>
-    if (request->hasParam(PARAM_SSID)) {
-      inputMessage = request->getParam(PARAM_SSID)->value();
-      inputParam = PARAM_SSID;
+    int params = request->params();
+    for (int i = 0; i < params; i++)
+    {
+      AsyncWebParameter *p = request->getParam(i);
+      if (p->isPost())
+      {
+        // HTTP POST ssid value
+        if (p->name() == PARAM_SSID)
+        {
+          ssid = p->value().c_str();
+          writeFile(SPIFFS, ssidPath, ssid.c_str());
+        }
+        // HTTP POST pass value
+        if (p->name() == PARAM_PASS)
+        {
+          pass = p->value().c_str();
+          // Write file to save value
+          writeFile(SPIFFS, passPath, pass.c_str());
+        }
+        // HTTP POST ip value
+        if (p->name() == PARAM_IP)
+        {
+          ip = p->value().c_str();
+          // Write file to save value
+          writeFile(SPIFFS, ipPath, ip.c_str());
+        }
+        // HTTP POST gateway value
+        if (p->name() == PARAM_SUB)
+        {
+          sub = p->value().c_str();
+          // Write file to save value
+          writeFile(SPIFFS, subPath, sub.c_str());;
+        }
+        if (p->name() == PARAM_GATEWAY)
+        {
+          gateway = p->value().c_str();
+          // Write file to save value
+          writeFile(SPIFFS, gatewayPath, gateway.c_str());
+        }
+        Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+      }
     }
-    // GET input2 value on <ESP_IP>/get?input2=<inputMessage>
-    else if (request->hasParam(PARAM_PASS)) {
-      inputMessage = request->getParam(PARAM_PASS)->value();
-      inputParam = PARAM_PASS;
-    }
-    // GET input3 value on <ESP_IP>/get?input3=<inputMessage>
-    else if (request->hasParam(PARAM_IP)) {
-      inputMessage = request->getParam(PARAM_IP)->value();
-      inputParam = PARAM_IP;
-    }
-    else if (request->hasParam(PARAM_SUB)) {
-      inputMessage = request->getParam(PARAM_SUB)->value();
-      inputParam = PARAM_SUB;
-    }
-    else if (request->hasParam(PARAM_GATEWAY)) {
-      inputMessage = request->getParam(PARAM_GATEWAY)->value();
-      inputParam = PARAM_GATEWAY;
-    }
-    else {
-      inputMessage = "No message sent";
-      inputParam = "none";
-    }
-    Serial.println(inputMessage);
-    request->send(200, "text/html", "HTTP GET request sent to your ESP on input field (" 
-                                     + inputParam + ") with value: " + inputMessage +
-                                     "<br><a href=\"/\">Return to Home Page</a>"); });
-
-  serverAP.onNotFound(notFound);
+    request->send(200, "text/plain", "Done. ESP will restart\n SSID: " + ssid + " Pass: " + pass  + "\n IP: " + ip + "\n  Sub: " + sub + "\n  Gateway: " + gateway);
+    delay(3000);
+    ESP.restart(); });
   serverAP.begin();
-  {
-    Serial.println("ConfigWiFiSetup::runAPWebServerSetup() end of and return");
-  }
   while (true)
   {
-    // Do not return let the esp32 reboot once inputs are finished.
+    // Do not return let the esp32 reboot once inputs is finished.
   }
   return true;
 }
@@ -312,18 +327,14 @@ void ConfigWiFiSetup::clearWiFiSettings()
 }
 
 // Read File from SPIFFS
-String ConfigWiFiSetup::readFile(fs::FS &fs, const char *path)
+String readFile(fs::FS &fs, const char *path)
 {
-  if (debugConfigWiFiSetup)
-  {
-    Serial.printf("ConfigWiFiSetup::readFile() Reading file: %s\r\n", path);
-  }
+  Serial.printf("Reading file: %s\r\n", path);
 
   File file = fs.open(path);
   if (!file || file.isDirectory())
   {
-
-    Serial.println("- failed to open file for reading. ConfigWiFiSetup::readFile()");
+    Serial.println("- failed to open file for reading");
     return String();
   }
 
@@ -337,25 +348,22 @@ String ConfigWiFiSetup::readFile(fs::FS &fs, const char *path)
 }
 
 // Write file to SPIFFS
-void ConfigWiFiSetup::writeFile(fs::FS &fs, const char *path, const char *message)
+void writeFile(fs::FS &fs, const char *path, const char *message)
 {
-  if (debugConfigWiFiSetup)
-  {
-    Serial.printf("ConfigWiFiSetup::writeFile() Writing file: %s\r\n", path);
-  }
+  Serial.printf("Writing file: %s\r\n", path);
 
   File file = fs.open(path, FILE_WRITE);
   if (!file)
   {
-    Serial.println("- failed to open file for writing. ConfigWiFiSetup::writeFile");
+    Serial.println("- failed to open file for writing");
     return;
   }
   if (file.print(message))
   {
-    Serial.println("- file written. ConfigWiFiSetup::writeFile");
+    Serial.println("- file written");
   }
   else
   {
-    Serial.println("- write failed. ConfigWiFiSetup::writeFile");
+    Serial.println("- write failed");
   }
 }
