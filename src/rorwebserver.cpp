@@ -8,6 +8,11 @@ RORWebServer::RORWebServer()
   rorWebSocket = new AsyncWebSocket("/rorWebSocket");
 
   // Set up WiFi configuration
+  ssid = "Gentry2";
+  password = "LittleJack";
+  local_IP = IPAddress(192, 168, 0, 219);
+  gateway = IPAddress(192, 168, 0, 1);
+  subnet = IPAddress(255, 255, 255, 0);
 
   // Set debug flag
   debug = true;
