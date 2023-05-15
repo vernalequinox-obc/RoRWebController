@@ -13,6 +13,7 @@ struct RORJsonStruct
   String altitudeMeter;
   String altitudeFeet;
   String RoRPosition;
+  String IsScopeParkSafe;
 };
 
 class RORWebServer
@@ -24,7 +25,7 @@ public:
   boolean connectToWiFi();
   void initWebSocket();
   void initWebServer();
-  void setJsonValues(SensorBMe280_Struct aSensorReadingStrut, String aRORPosition);
+  void setJsonValues(SensorBMe280_Struct aSensorReadingStrut, String aRORPosition, String aIsScopeParkSafe);
   void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
   // void onRootRequest(AsyncWebServerRequest *request);
   void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
@@ -46,7 +47,6 @@ private:
   boolean rorwebserverDebug;
   String sendString;
   RORJsonStruct rorjasonstrut = {"", "", "", "", "Closed"};
-  RoofStatusStruct rorStatusStruct = {RORSTATUS_PIN, false};
   AsyncWebServer *rorWebServer;
   AsyncWebSocket *rorWebSocket;
 };

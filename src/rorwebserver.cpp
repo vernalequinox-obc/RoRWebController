@@ -178,6 +178,7 @@ void RORWebServer::notifyClients()
   root["status"]["altitudeMeter"] = rorjasonstrut.altitudeMeter;
   root["status"]["altitudeFeet"] = rorjasonstrut.altitudeFeet;
   root["status"]["RoRPosition"] = rorjasonstrut.RoRPosition;
+  root["status"]["IsScopeParkSafe"] = rorjasonstrut.IsScopeParkSafe;
 
   if (rorwebserverDebug)
   {
@@ -187,6 +188,7 @@ void RORWebServer::notifyClients()
     Serial.println("RORWebServer::notifyClients() rorjasonstrut.pressure : " + rorjasonstrut.pressure);
     Serial.println("RORWebServer::notifyClients() rorjasonstrut.temperature : " + rorjasonstrut.temperature);
     Serial.println("RORWebServer::notifyClients() rorjasonstrut.RoRPosition : " + rorjasonstrut.RoRPosition);
+    Serial.println("RORWebServer::notifyClients() rorjasonstrut.IsScopeParkSafe : " + rorjasonstrut.IsScopeParkSafe);
   }
 
   char buffer[1024];
@@ -208,7 +210,7 @@ void RORWebServer::notifyClients()
 }
 
 // Send BME280 sensor readings over event source
-void RORWebServer::setJsonValues(SensorBMe280_Struct aSensorReadingStrut, String aRORPosition)
+void RORWebServer::setJsonValues(SensorBMe280_Struct aSensorReadingStrut, String aRORPosition, String aIsScopeParkSafe)
 {
 
   rorjasonstrut.altitudeMeter = aSensorReadingStrut.altitudeMeter;
@@ -217,6 +219,7 @@ void RORWebServer::setJsonValues(SensorBMe280_Struct aSensorReadingStrut, String
   rorjasonstrut.pressure = aSensorReadingStrut.pressure;
   rorjasonstrut.temperature = aSensorReadingStrut.temperature;
   rorjasonstrut.RoRPosition = aRORPosition;
+  rorjasonstrut.IsScopeParkSafe = aIsScopeParkSafe;
 
   if (rorwebserverDebug)
   {
@@ -227,6 +230,7 @@ void RORWebServer::setJsonValues(SensorBMe280_Struct aSensorReadingStrut, String
     Serial.println("RORWebServer::setJsonValues() rorjasonstrut.pressure : " + rorjasonstrut.pressure);
     Serial.println("RORWebServer::setJsonValues() rorjasonstrut.temperature : " + rorjasonstrut.temperature);
     Serial.println("RORWebServer::setJsonValues() rorjasonstrut.RoRPosition : " + rorjasonstrut.RoRPosition);
+    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.IsScopeParkSafe : " + rorjasonstrut.IsScopeParkSafe);
   }
 }
 
