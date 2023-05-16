@@ -8,8 +8,15 @@ var lastRoofPosition;
 var ledBoxElement;
 var ledElementRed;
 var ledElementGreen;
+var isScopeParked = false;
 
 
+function doSomething(event) {
+  if (isScopeParked) {
+    websocket.send(JSON.stringify({ 'action': 'toggle' }));
+    console.log('doSomething - send to server button triggered');
+  }
+}
 
 // ----------------------------------------------------------------------------
 // Initialization
@@ -24,7 +31,7 @@ function onLoad(event) {
   ledElementGreen = document.getElementsByClassName("led-green");
   ledElementRed[0].style.display = "none";
   ledElementGreen[0].style.display = "none";
-
+  document.getElementById('buttonID').setAttribute("style", "background-color: black");
 }
 
 // ----------------------------------------------------------------------------
@@ -51,9 +58,7 @@ function onClose(event) {
   setTimeout(initWebSocket, 2000);
 }
 
-function doSomething(event) {
-  websocket.send(JSON.stringify({ 'action': 'toggle' }));
-}
+
 
 function onMessage(event) {
   var obj = JSON.parse(event.data);
@@ -68,9 +73,10 @@ function onMessage(event) {
 
   var roofImage = document.getElementById('roofImage');
   var roofPosition = obj.status["RoRPosition"];
+
   if (lastRoofPosition !== roofPosition) {
     lastRoofPosition = roofPosition;
-    if (roofPosition === "Open") {
+    if (roofPosition === "Opened") {
       roofImage.src = "ROROpen.jpg";
     } else if (roofPosition === "Moving") {
       roofImage.src = "RORMoving.gif";
@@ -97,13 +103,17 @@ function onMessage(event) {
     scopeStatusTextB.innerHTML = "&nbsp;&nbspCan move roof.&nbsp;";
     ledElementRed[0].style.display = "none";
     ledElementGreen[0].style.display = "block";
+    isScopeParked = true;
     document.getElementById('buttonID').disabled = false;
+    document.getElementById('buttonID').setAttribute("style", "background-color: green");
   } else if (obj.status["IsScopeParkSafe"] === "ScopeNotParked") {
     scopeStatusTextA.innerHTML = "&nbsp;is NOT Parked.&nbsp;";
     scopeStatusTextB.innerHTML = "Cannot move roof.";
     ledElementRed[0].style.display = "block";
     ledElementGreen[0].style.display = "none";
+    isScopeParked = false;
     document.getElementById('buttonID').disabled = true;
+    document.getElementById('buttonID').setAttribute("style", "background-color: black");
   }
 
   if (false) {
@@ -117,7 +127,6 @@ function onMessage(event) {
   }
 }
 
-
 window.onload = function () {
 
   let dragItem = document.querySelector("#buttonID");
@@ -128,7 +137,7 @@ window.onload = function () {
   let pressHoldDuration = 100;
   let timerID;
   let disableItemCounter = 0;
-  let disableItemDuration = 300;
+  let disableItemDuration = 400;
   let disableEnable = false;
 
   dragItem.addEventListener("mousedown", pressingDown, false);
@@ -139,13 +148,14 @@ window.onload = function () {
   dragItem.addEventListener("pressHold", doSomething, false);
 
   function counter() {
-    if (!disableEnable) {
+    if (!disableEnable && isScopeParked) {
       if (press) {
-        timePressed++;
+         timePressed++;
         dragItem.setAttribute("style", "background-color: green");
         scaleItem();
         if (timePressed >= pressHoldDuration) {
           timePressed = 0;
+          disableItemCounter = 0;
           resetItem();
           dragItem.dispatchEvent(pressHoldEvent);
           disableEnable = true;
@@ -184,7 +194,7 @@ window.onload = function () {
     let size = 1 + timePressed / 200;
     if (size > 2) {
       size = 2;
-      // container.classList.add("stripes");
+      container.classList.add("stripes");
     }
     dragItem.style.transitionDuration = "1s";
     dragItem.style.setProperty("--scale-value", size);
