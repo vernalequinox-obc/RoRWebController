@@ -3,7 +3,11 @@
 
 #include "settings.h"
 
-
+struct RORStatus_Struct
+{
+    char rorCurrentPosition[8];
+    char ScopeParkSafe[15];
+};
 
 class ROR_Controller
 {
@@ -12,20 +16,23 @@ public:
     ~ROR_Controller();
 
     void updatedInputSensorsButtons();
-    String getRORPosistion();
-    String getIsScopeParkSafe();
+    RORStatus_Struct* getRORStatus();
+
     // Test of the buttons
     // Button buttonTest = {INPUT_PIN_SCOPE_PARKED_SAFE_SENSOR, HIGH, 0, 0};
     Button scopePark_Sensor_INPUT = {INPUT_PIN_SCOPE_PARKED_SAFE_SENSOR, HIGH, 0, 0};
-
+    Button opened_Sensor_INPUT = {INPUT_PIN_OPENED_SENSOR, HIGH, 0, 0};
+    Button closed_Sensor_INPUT = {INPUT_PIN_CLOSED_SENSOR, HIGH, 0, 0};
+    Button OSC_Btn_BUTTON_INPUT = {INPUT_PIN_OSC_BUTTON, HIGH, 0, 0};
 
 private:
     bool rorDebug;
- 
-    DebounceIt opened_Sensor_INPUT;
-    DebounceIt closed_Sensor_INPUT;
-    // DebounceIt scopePark_Sensor_INPUT;
-    DebounceIt OSC_Btn_BUTTON;
+    int rorMovingTimeCounter = 0;
+    const int rorMovingTimeReached = 60 / (WEBUPDATE/1000);  // The updateRORStatus checks for roof lost once it passes a time limit of about 60 seconds.
+
+
+    RORStatus_Struct rorStatusStruct;
+
     LedLight scopeSafeParked_LED;
     LedLight scopeUNSafeNotParked_LED;
     LedLight opened_Sensor_LED;
@@ -33,6 +40,9 @@ private:
     LedLight roof_moving_LED;
     LedLight roof_unknown_LED;
     LedLight osc_button_LED;
+
+    void updateRORStatus();
+
 
     /*
     // ROR Controller Defines  define in setup.h

@@ -15,16 +15,17 @@ char rorPositionStatusStr[20] = "";
 boolean runAccessPointSetupMode = false; // is true every time the board is started as Access Point
 boolean debugMain = true;
 
+
 // BME280 Loop timers
 unsigned long lastTime = 0;
-unsigned long timerDelay = 3000; // send readings timer
+unsigned long timerDelay = WEBUPDATE; // send readings timer
 
 void runGetUpdatesSendThemToClients();
 void initBME280();
 void initSPIFFS();
 bool initWebServer();
-void updateBME280Reading();
-void updateRORPosition();
+void updateBME280Status();
+void updateRORStatus();
 void loop();
 void printMemory();
 
@@ -126,9 +127,7 @@ void loop()
     configWiFiSetup.clearWiFiSettings();
     ESP.restart();
   }
-
   rorWebServer.cleanUpClients();
-
   if ((millis() - lastTime) > timerDelay)
   {
     runGetUpdatesSendThemToClients();
@@ -192,46 +191,23 @@ void initBME280()
   }
   if (!sensorBME280Readings.begin())
   {
-    Serial.println("Could not find a valid BME280 sensor, check wiring!");
-  }
-}
-
-// ----------------------------------------------------------------------------
-// updateBME280Reading Get sensor data and update RORWebServer with data
-// ----------------------------------------------------------------------------
-void updateBME280Reading()
-{
-  sensorBME280Readings.getBME280Readings(&mainSensorStruct);
-  if (false)
-  {
-    Serial.print("main::updateBME280Reading() mainSensorStruct.altitude: ");
-    Serial.println(mainSensorStruct.altitudeMeter);
-    Serial.print("main::updateBME280Reading() mainSensorStruct.altitude: ");
-    Serial.println(mainSensorStruct.altitudeFeet);
-    Serial.print("main::updateBME280Reading() mainSensorStruct.humidity : ");
-    Serial.println(mainSensorStruct.humidity);
-    Serial.print("main::updateBME280Reading() mainSensorStruct.pressure : ");
-    Serial.println(mainSensorStruct.pressure);
-    Serial.print("main::updateBME280Reading() mainSensorStruct.temperature : ");
-    Serial.println(mainSensorStruct.temperature);
-  }
-}
-
-void updateRORPosition()
-{
-  strncpy(rorPositionStatusStr, rorController.getRORPosistion().c_str(), sizeof(rorPositionStatusStr) - 1);
-  rorPositionStatusStr[sizeof(rorPositionStatusStr) - 1] = '\0';
-  if (debugMain)
-  {
-    Serial.println("maincpp: updateRORPosition() RoRPosition: " + String(rorPositionStatusStr));
+    if (debugMain)
+    {
+      Serial.println("Could not find a valid BME280 sensor, check wiring!");
+    }
   }
 }
 
 void runGetUpdatesSendThemToClients()
 {
-  updateBME280Reading();
-  updateRORPosition();
-  rorWebServer.setJsonValues(mainSensorStruct, rorPositionStatusStr, rorController.getIsScopeParkSafe());
+  if (debugMain)
+  {
+    Serial.println("Main.cpp -> runGetUpdatesSendThemToClients()");
+  }
+  RORStatus_Struct *ptrRoRStatusStruct;
+  sensorBME280Readings.getBME280Readings(&mainSensorStruct);
+  ptrRoRStatusStruct = rorController.getRORStatus();
+  rorWebServer.setJsonValues(mainSensorStruct, ptrRoRStatusStruct->rorCurrentPosition, ptrRoRStatusStruct->ScopeParkSafe);
   rorWebServer.cleanUpClients();
   rorWebServer.notifyClients();
 }

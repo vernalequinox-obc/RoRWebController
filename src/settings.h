@@ -7,6 +7,8 @@
 #include <ArduinoJson.h>
 #include "SPIFFS.h"
 
+
+#define WEBUPDATE 3000
 #define BME_SCK 18  // GIOP18 Used for weather sensor
 #define BME_MISO 19 // GIOP19 Used for weather sensor
 #define BME_MOSI 22 // GIOP22 Used for weather sensor
@@ -38,6 +40,15 @@
 #define OUTPUT_OSC_BUTTON_LED 13              // GIOP13 - LED for when the OSC button is press
 
 const uint8_t DEBOUNCE_DELAY = 10; // Used by Button class for debounce delay in milliseconds
+
+#define ROR_OPENED  "Opened"
+#define ROR_CLOSED  "Closed"
+#define ROR_MOVING  "Moving"
+#define ROR_UNKNOWN  "Unknown"
+#define ROR_SCOPE_IS_PARKED  "ScopeIsParked"
+#define ROR_SCOPE_NOT_PARKED "ScopeNotParked"
+#define ROR_OSCBUTTON "OSCButton"
+
 
 // ----------------------------------------------------------------------------
 // Definition of the Led component
@@ -210,5 +221,36 @@ struct Button
     lastReading = reading;
   }
 };
+
+
+
+
+/*
+const int buttonPin = 32;
+const int ledPin = 23;
+int buttonState = 0;
+int lastMillis = 0;
+
+void IRAM_ATTR function_ISR() {
+ if(millis() - lastMillis &gt; 10){ // Software debouncing buton
+         ets_printf("ISR triggered\n");
+         buttonState = !buttonState;
+         digitalWrite(ledPin,buttonState);
+ }
+ lastMillis = millis();
+}
+
+void setup() {
+ Serial.begin(115200);
+ pinMode(buttonPin, INPUT_PULLUP);
+ pinMode(ledPin,OUTPUT);
+ attachInterrupt(buttonPin, function_ISR, CHANGE);
+ digitalWrite(ledPin, buttonState);
+}
+
+void loop() {
+ // Code ...
+}
+*/
 
 #endif
