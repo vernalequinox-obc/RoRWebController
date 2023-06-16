@@ -72,7 +72,7 @@ function onMessage(event) {
   // Update the image based on the roof status
 
   var roofImage = document.getElementById('roofImage');
-  var roofPosition = obj.status["RoRPosition"];
+  var roofPosition = obj.status["RoRCurrentPosition"];
 
   if (lastRoofPosition !== roofPosition) {
     lastRoofPosition = roofPosition;
@@ -87,7 +87,7 @@ function onMessage(event) {
     }
   }
 
-  document.getElementById('rorpositionID').innerHTML = obj.status["RoRPosition"];
+  document.getElementById('rorpositionID').innerHTML = obj.status["RoRCurrentPosition"];
   document.getElementById('temperatureID').innerHTML = obj.status["temperature"];
   document.getElementById('humidityID').innerHTML = obj.status["humidity"];
   document.getElementById('pressureID').innerHTML = obj.status["pressure"];
@@ -118,7 +118,7 @@ function onMessage(event) {
 
   if (false) {
     console.log(obj.status["IsScopeParkSafe"]);
-    console.log(obj.status["RoRPosition"]);
+    console.log(obj.status["RoRCurrentPosition"]);
     console.log(obj.status["temperature"]);
     console.log(obj.status["humidity"]);
     console.log(obj.status["pressure"]);

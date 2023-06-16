@@ -7,13 +7,13 @@
 
 struct RORJsonStruct
 {
-  String temperature;
-  String humidity;
-  String pressure;
-  String altitudeMeter;
-  String altitudeFeet;
-  String RoRPosition;
-  String IsScopeParkSafe;
+  char temperature[10];
+  char humidity[10];
+  char pressure[10];
+  char altitudeMeter[10];
+  char altitudeFeet[10];
+  char RoRCurrentPosition[8];
+  char IsScopeParkSafe[15];
 };
 
 class RORWebServer
@@ -25,27 +25,26 @@ public:
   boolean connectToWiFi();
   void initWebSocket();
   void initWebServer();
-  void setJsonValues(SensorBMe280_Struct aSensorReadingStrut, String aRORPosition, String aIsScopeParkSafe);
+  void setJsonValues(SensorBMe280_Struct *aSensorReadingStrut, char *aRORPosition, char *aIsScopeParkSafe);
   void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
   // void onRootRequest(AsyncWebServerRequest *request);
   void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
   void notifyClients();
   void cleanUpClients();
-  void setSSID(String aSSID);
-  void setPass(String aPass);
-  void setIP(String address);
-  void setSub(String address);
-  void setGateway(String address);
+  void setSSID(char *aSSID);
+  void setPass(char *aPass);
+  void setIP(char *aAddress);
+  void setSub(char *aAddress);
+  void setGateway(char *aAddress);
 
 private:
-  String ssid;
-  String password;
+  char ssid[25];
+  char password[25];
   IPAddress local_IP;
   IPAddress gateway;
   IPAddress subnet;
 
   boolean rorwebserverDebug;
-  String sendString;
   RORJsonStruct rorjasonstrut = {"", "", "", "", "Closed"};
   AsyncWebServer *rorWebServer;
   AsyncWebSocket *rorWebSocket;

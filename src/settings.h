@@ -7,7 +7,6 @@
 #include <ArduinoJson.h>
 #include "SPIFFS.h"
 
-
 #define WEBUPDATE 3000
 #define BME_SCK 18  // GIOP18 Used for weather sensor
 #define BME_MISO 19 // GIOP19 Used for weather sensor
@@ -15,6 +14,9 @@
 #define BME_CS 5    // GIOP05 Used for weather sensor
 
 #define HTTP_PORT 80
+const char STATIC_LOCAL_IP[] = {192, 168, 0, 219};
+const char STATIC_GATEWAY_IP[] = {192, 168, 0, 1};
+const char STATIC_SUBNET[] = {255, 255, 255, 0};
 
 // Buttons
 #define INPUT_PIN_OSC_BUTTON 39 // GIOP39
@@ -38,38 +40,24 @@
 #define OUTPUT_MOVING_LED 15                  // GIOP15 - LED for when the roof is moving
 #define OUTPUT_UNKNOWN_LED 14                 // GIOP14 - LED for when the roof is unknown lost
 #define OUTPUT_OSC_BUTTON_LED 13              // GIOP13 - LED for when the OSC button is press
+#define OUTPUT_ENGAGE_RELAY_LED 4
 
 const uint8_t DEBOUNCE_DELAY = 10; // Used by Button class for debounce delay in milliseconds
 
-#define ROR_OPENED  "Opened"
-#define ROR_CLOSED  "Closed"
-#define ROR_MOVING  "Moving"
-#define ROR_UNKNOWN  "Unknown"
-#define ROR_SCOPE_IS_PARKED  "ScopeIsParked"
-#define ROR_SCOPE_NOT_PARKED "ScopeNotParked"
-#define ROR_OSCBUTTON "OSCButton"
+
 
 
 // ----------------------------------------------------------------------------
 // Definition of the Led component
 // ----------------------------------------------------------------------------
 
-
-
 class LedLight
 {
 private:
   // state variables
   uint8_t espPin;
-
 public:
-  char displayName[16];
   bool on = false;
-  void begin(uint8_t aEspPinNumber, const char *aName)
-  {
-    begin(aEspPinNumber);
-    strncpy(displayName, aName, sizeof(displayName));
-  }
   void begin(uint8_t aEspPinNumber)
   {
     espPin = aEspPinNumber;
@@ -82,33 +70,7 @@ public:
   }
 };
 
-/*
 
-
-How to use
-
-Button btn1;
-Button btn2;
-
-void setup() {
-  btn1.begin(2);
-  btn2.begin(3);
-  pinMode(LED_BUILTIN, OUTPUT);
-}
-
-void loop() {
-  // press button 1 to turn on the LED
-  if (btn1.debounce()) {
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
-  // press button 2 to turn off the LED
-  if (btn2.debounce()) {
-    digitalWrite(LED_BUILTIN, LOW);
-  }
-}
-
-
-*/
 
 class DebounceIt
 {
@@ -150,35 +112,28 @@ struct Button
   bool lastReading;
   uint32_t lastDebounceTime;
   uint16_t state;
+  bool isEnabled;
 
   // methods determining the logical state of the button
   bool pressed()
   {
-    if (false)
+    if (!isEnabled)
     {
-      Serial.print("pressed()");
-      Serial.print("state: ");
-      Serial.println(state == 1);
+      return state == 0;
     }
     return state == 1;
   }
+
   bool released()
   {
-    if (false)
-    {
-      Serial.print("Button released()");
-      Serial.print("state: ");
-      Serial.println(state == 0xffff);
-    }
     return state == 0xffff;
   }
+
   bool held(uint16_t count = 0)
   {
-    if (false)
+    if (!isEnabled)
     {
-      Serial.print("Button held()");
-      Serial.print("state: ");
-      Serial.println(state > 1 + count && state < 0xffff);
+      return state == 0;
     }
     return state > 1 + count && state < 0xffff;
   }
@@ -186,6 +141,11 @@ struct Button
   // method for reading the physical state of the button
   void read()
   {
+    // enable or disable if disable just return
+    if (!isEnabled)
+    {
+      return;
+    }
     // reads the voltage on the pin connected to the button
     bool reading = digitalRead(pin);
 
@@ -221,36 +181,5 @@ struct Button
     lastReading = reading;
   }
 };
-
-
-
-
-/*
-const int buttonPin = 32;
-const int ledPin = 23;
-int buttonState = 0;
-int lastMillis = 0;
-
-void IRAM_ATTR function_ISR() {
- if(millis() - lastMillis &gt; 10){ // Software debouncing buton
-         ets_printf("ISR triggered\n");
-         buttonState = !buttonState;
-         digitalWrite(ledPin,buttonState);
- }
- lastMillis = millis();
-}
-
-void setup() {
- Serial.begin(115200);
- pinMode(buttonPin, INPUT_PULLUP);
- pinMode(ledPin,OUTPUT);
- attachInterrupt(buttonPin, function_ISR, CHANGE);
- digitalWrite(ledPin, buttonState);
-}
-
-void loop() {
- // Code ...
-}
-*/
 
 #endif

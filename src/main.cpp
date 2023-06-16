@@ -81,8 +81,8 @@ void setup()
     Serial.println("maincpp:setup");
   }
 
-  apMode_LED.begin(OUTPUT_APSETUP_LED, "ROR Wi-Fi Manager");
-  localWiFIConnected_LED.begin(OUTPUT_NORMAL_WIFI_LED, "WiFi Local Network");
+  apMode_LED.begin(OUTPUT_APSETUP_LED); // "ROR Wi-Fi Manager"
+  localWiFIConnected_LED.begin(OUTPUT_NORMAL_WIFI_LED); // "WiFi Local Network"
 
   pinMode(INPUT_APSETUP_BUTTON, INPUT);
 
@@ -160,7 +160,7 @@ bool initWebServer()
   {
     Serial.println("Main.cpp -> initWebServer() rorWebServer.connectToWiFi() ");
   }
-  rorWebServer.setSSID(configWiFiSetup.getSSID().c_str());
+  rorWebServer.setSSID(configWiFiSetup.getSSID());
   rorWebServer.setPass(configWiFiSetup.getPass());
   rorWebServer.setIP(configWiFiSetup.getIP());
   rorWebServer.setSub(configWiFiSetup.getSub());
@@ -204,10 +204,10 @@ void runGetUpdatesSendThemToClients()
   {
     Serial.println("Main.cpp -> runGetUpdatesSendThemToClients()");
   }
-  RORStatus_Struct *ptrRoRStatusStruct;
+  ROR_Status *ptrRoRStatusStruct;
   sensorBME280Readings.getBME280Readings(&mainSensorStruct);
   ptrRoRStatusStruct = rorController.getRORStatus();
-  rorWebServer.setJsonValues(mainSensorStruct, ptrRoRStatusStruct->rorCurrentPosition, ptrRoRStatusStruct->ScopeParkSafe);
+  rorWebServer.setJsonValues(&mainSensorStruct, ptrRoRStatusStruct->rorCurrentPosition, ptrRoRStatusStruct->IsScopeParkSafe);
   rorWebServer.cleanUpClients();
   rorWebServer.notifyClients();
 }

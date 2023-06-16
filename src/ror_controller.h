@@ -3,10 +3,21 @@
 
 #include "settings.h"
 
-struct RORStatus_Struct
+#define ROR_ENGAGE_RELAY_PULSEWIDTH 500
+#define ROR_TEMPORARY_DISABLE_OSC_BUTTON 2500
+
+struct ROR_Status
 {
     char rorCurrentPosition[8];
-    char ScopeParkSafe[15];
+    char IsScopeParkSafe[15];
+};
+
+struct ROR_Item
+{
+    bool isTrue;
+    char webName[16];
+    char serialName[16];
+    LedLight *ptrLedLight;
 };
 
 class ROR_Controller
@@ -16,33 +27,51 @@ public:
     ~ROR_Controller();
 
     void updatedInputSensorsButtons();
-    RORStatus_Struct* getRORStatus();
+    ROR_Status *getRORStatus();
+
+private:
+    bool rorDebug = false;
+    int rorMovingTimeCounter = 0;
+    const int rorMovingTimeReached = 60 / (WEBUPDATE / 1000); // The updateRORStatus checks for roof lost once it passes a time limit of about 60 seconds.
+    bool isEngagedRelayPulse = false;
+    bool isEnagagedRelayPulseHapping = false;
+    int engagedRelayPulseTimer = 0;
+
+    bool isTemporaryDisableOSCPulse = false;
+    bool isTemporaryDisableOSCHapping = false;
+    long temporaryDisableOSCTimer = 0;
+
+    ROR_Status rorStatusStruct;
 
     // Test of the buttons
     // Button buttonTest = {INPUT_PIN_SCOPE_PARKED_SAFE_SENSOR, HIGH, 0, 0};
-    Button scopePark_Sensor_INPUT = {INPUT_PIN_SCOPE_PARKED_SAFE_SENSOR, HIGH, 0, 0};
-    Button opened_Sensor_INPUT = {INPUT_PIN_OPENED_SENSOR, HIGH, 0, 0};
-    Button closed_Sensor_INPUT = {INPUT_PIN_CLOSED_SENSOR, HIGH, 0, 0};
-    Button OSC_Btn_BUTTON_INPUT = {INPUT_PIN_OSC_BUTTON, HIGH, 0, 0};
-
-private:
-    bool rorDebug;
-    int rorMovingTimeCounter = 0;
-    const int rorMovingTimeReached = 60 / (WEBUPDATE/1000);  // The updateRORStatus checks for roof lost once it passes a time limit of about 60 seconds.
-
-
-    RORStatus_Struct rorStatusStruct;
+    Button scopePark_Sensor_INPUT = {INPUT_PIN_SCOPE_PARKED_SAFE_SENSOR, HIGH, 0, 0, HIGH};
+    Button opened_Sensor_INPUT = {INPUT_PIN_OPENED_SENSOR, HIGH, 0, 0, HIGH};
+    Button closed_Sensor_INPUT = {INPUT_PIN_CLOSED_SENSOR, HIGH, 0, 0, HIGH};
+    Button OSC_Btn_BUTTON_INPUT = {INPUT_PIN_OSC_BUTTON, HIGH, 0, 0, HIGH};
 
     LedLight scopeSafeParked_LED;
     LedLight scopeUNSafeNotParked_LED;
     LedLight opened_Sensor_LED;
     LedLight closed_Sensor_LED;
-    LedLight roof_moving_LED;
-    LedLight roof_unknown_LED;
     LedLight osc_button_LED;
 
-    void updateRORStatus();
+    ROR_Item itemSafe{false, "ScopeIsParked", "safe,", &scopeSafeParked_LED};
+    ROR_Item itemUnSafe{false, "ScopeNotParked", "unsafe,", &scopeUNSafeNotParked_LED};
+    ROR_Item itemOpen{false, "Opened", "opened,", &opened_Sensor_LED};
+    ROR_Item itemClosed{false, "Closed", "closed,", &closed_Sensor_LED};
+    ROR_Item itemUnknown{false, "Unknown", "unknown,", nullptr};
+    ROR_Item itemMoving{false, "Moving", "moving,", nullptr};
+    // other that need the # (pound)
+    ROR_Item itemMovingPound{false, "", "moving#", nullptr};
+    ROR_Item itemUnknownPound{false, "", "unknown#", nullptr};
+    ROR_Item itemNotMovingClosePound{false, "", "not_moving_c#", nullptr};
+    ROR_Item itemNotMovingOpenPound{false, "", "not_moving_o#", nullptr};
+    ROR_Item itemRoofLost{false, "", "unknown#,", nullptr};
 
+    void updateRORStatus();
+    void engageRelayPulse();
+    void temporaryDisableOSCButton();
 
     /*
     // ROR Controller Defines  define in setup.h
@@ -68,33 +97,6 @@ private:
     unsigned long debounceTimeLength_ScopeParkSafeSensor = 500; // scope mount park sensor switch needs a bit of debounce
     unsigned long previousDebounceTime_ScopeParkSafeSensor = 0;
 
-    bool isScopeParkSafeSensorEngaged = false;
-    bool isScopeParkSafeSensorEnabledOverride = false;
-
-    bool isClosedSensorEngaged = false;
-
-    bool isOpenedSensorEngaged = false;
-
-    int currentOSCButtonState = HIGH;
-    int previousOSCButtonState = HIGH;
-    bool isOSCButtonEngaged = false;
-
-    unsigned long momentaryRelayTimeLength = 750;  // how long to keep the momentary OSC relay down for
-    unsigned long previousTime_MomentaryRelay = 0; // counter for the momentary OSC relay stays to say closed to act like a push button for AleKo
-    int currentMomentaryRelayState = HIGH;
-    int previousMomentaryRelayState = HIGH;
-    bool isMomentaryRelayEngaged = false;
-    bool isMomentaryRelayTimeLimitReached = false;
-
-    unsigned long delayOSCOperationTimeLength = 5000; // how long to keep the OSC button from operating so a user cannot just keep pushing button over and over real fast
-    unsigned long previousTime_delayOSCOperation = 0; // counter for the OSC operation delay stays to say closed to act like a push button for AleKo
-    bool isDelayOSCOperationEngaged = false;
-
-    unsigned long lostRoofTimeLimit = 60000; // How to wait till the roof is lost because the opened or closed sensor is not engaged so how long before the lost roof message is shown.
-    unsigned long previousTime_LostRoof = 0;
-    int currentLostRoofState = HIGH;
-    int previousLostRoofState = HIGH;
-    bool isRoofLost = false; // roof not reporting state
 
     void outputStatusToSerial();
 };

@@ -8,11 +8,11 @@ RORWebServer::RORWebServer()
   rorWebSocket = new AsyncWebSocket("/rorWebSocket");
 
   // Set up WiFi configuration
-  ssid = "";
-  password = "";
-  local_IP = IPAddress(192, 168, 0, 219);
-  gateway = IPAddress(192, 168, 0, 1);
-  subnet = IPAddress(255, 255, 255, 0);
+  ssid[0] = '\0';
+  password[0] = '\0';
+  local_IP = IPAddress(STATIC_LOCAL_IP[0],STATIC_LOCAL_IP[1], STATIC_LOCAL_IP[2], STATIC_LOCAL_IP[3]);
+  gateway = IPAddress(STATIC_GATEWAY_IP[0], STATIC_GATEWAY_IP[1], STATIC_GATEWAY_IP[2], STATIC_GATEWAY_IP[3] );
+  subnet = IPAddress(STATIC_SUBNET[0], STATIC_SUBNET[1], STATIC_SUBNET[2], STATIC_SUBNET[3]);
 
   // Set rorwebserverDebug flag
   rorwebserverDebug = false;
@@ -23,25 +23,25 @@ RORWebServer::~RORWebServer()
 {
 }
 
-void RORWebServer::setSSID(String aSSID)
+void RORWebServer::setSSID(char *aSSID)
 {
-  ssid = aSSID;
+  strncpy(ssid, aSSID, sizeof(ssid)-1);
 }
-void RORWebServer::setPass(String aPass)
+void RORWebServer::setPass(char *aPass)
 {
-  password = aPass;
+  strncpy(password, aPass, sizeof(password)-1);
 }
-void RORWebServer::setIP(String address)
+void RORWebServer::setIP(char *aAddress)
 {
-  local_IP.fromString(address);
+  local_IP.fromString(aAddress);
 }
-void RORWebServer::setSub(String address)
+void RORWebServer::setSub(char *aAddress)
 {
-  subnet.fromString(address);
+  subnet.fromString(aAddress);
 }
-void RORWebServer::setGateway(String address)
+void RORWebServer::setGateway(char *aAddress)
 {
-  gateway.fromString(address);
+  gateway.fromString(aAddress);
 }
 
 boolean RORWebServer::connectToWiFi()
@@ -52,7 +52,7 @@ boolean RORWebServer::connectToWiFi()
     Serial.println("STA Failed to configure");
     return false;
   }
-  WiFi.begin(ssid.c_str(), password.c_str());
+  WiFi.begin(ssid, password);
   Serial.println("Connecting to WiFi..");
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -178,18 +178,25 @@ void RORWebServer::notifyClients()
   root["status"]["pressure"] = rorjasonstrut.pressure;
   root["status"]["altitudeMeter"] = rorjasonstrut.altitudeMeter;
   root["status"]["altitudeFeet"] = rorjasonstrut.altitudeFeet;
-  root["status"]["RoRPosition"] = rorjasonstrut.RoRPosition;
+  root["status"]["RoRCurrentPosition"] = rorjasonstrut.RoRCurrentPosition;
   root["status"]["IsScopeParkSafe"] = rorjasonstrut.IsScopeParkSafe;
 
   if (rorwebserverDebug)
   {
-    Serial.println("RORWebServer::notifyClients() rorjasonstrut.altitudeMeter : " + rorjasonstrut.altitudeMeter);
-    Serial.println("RORWebServer::notifyClients() rorjasonstrut.altitudeFeet : " + rorjasonstrut.altitudeFeet);
-    Serial.println("RORWebServer::notifyClients() rorjasonstrut.humidity : " + rorjasonstrut.humidity);
-    Serial.println("RORWebServer::notifyClients() rorjasonstrut.pressure : " + rorjasonstrut.pressure);
-    Serial.println("RORWebServer::notifyClients() rorjasonstrut.temperature : " + rorjasonstrut.temperature);
-    Serial.println("RORWebServer::notifyClients() rorjasonstrut.RoRPosition : " + rorjasonstrut.RoRPosition);
-    Serial.println("RORWebServer::notifyClients() rorjasonstrut.IsScopeParkSafe : " + rorjasonstrut.IsScopeParkSafe);
+    Serial.print("RORWebServer::notifyClients() rorjasonstrut.altitudeMeter : ");
+    Serial.println(rorjasonstrut.altitudeMeter);
+    Serial.print("RORWebServer::notifyClients() rorjasonstrut.altitudeFeet : ");
+    Serial.println(rorjasonstrut.altitudeFeet);
+    Serial.print("RORWebServer::notifyClients() rorjasonstrut.humidity : ");
+    Serial.println(rorjasonstrut.humidity);
+    Serial.print("RORWebServer::notifyClients() rorjasonstrut.pressure : ");
+    Serial.println(rorjasonstrut.pressure);
+    Serial.print("RORWebServer::notifyClients() rorjasonstrut.temperature : ");
+    Serial.println(rorjasonstrut.temperature);
+    Serial.print("RORWebServer::notifyClients() rorjasonstrut.RoRCurrentPosition: ");
+    Serial.println(rorjasonstrut.RoRCurrentPosition);
+    Serial.print("RORWebServer::notifyClients() rorjasonstrut.IsScopeParkSafe: ");
+    Serial.println(rorjasonstrut.IsScopeParkSafe);
   }
 
   char buffer[1024];
@@ -211,27 +218,46 @@ void RORWebServer::notifyClients()
 }
 
 // Send BME280 sensor readings over event source
-void RORWebServer::setJsonValues(SensorBMe280_Struct aSensorReadingStrut, String aRORPosition, String aIsScopeParkSafe)
+void RORWebServer::setJsonValues(SensorBMe280_Struct *aSensorReadingStrut, char *aRORPosition, char *aIsScopeParkSafe)
 {
+  strncpy(rorjasonstrut.altitudeMeter, aSensorReadingStrut->altitudeMeter, sizeof(rorjasonstrut.altitudeMeter) - 1);
+  rorjasonstrut.altitudeMeter[sizeof(rorjasonstrut.altitudeMeter) - 1] = '\0';
 
-  rorjasonstrut.altitudeMeter = aSensorReadingStrut.altitudeMeter;
-  rorjasonstrut.altitudeFeet = aSensorReadingStrut.altitudeFeet;
-  rorjasonstrut.humidity = aSensorReadingStrut.humidity;
-  rorjasonstrut.pressure = aSensorReadingStrut.pressure;
-  rorjasonstrut.temperature = aSensorReadingStrut.temperature;
-  rorjasonstrut.RoRPosition = aRORPosition;
-  rorjasonstrut.IsScopeParkSafe = aIsScopeParkSafe;
+  strncpy(rorjasonstrut.altitudeFeet, aSensorReadingStrut->altitudeFeet, sizeof(rorjasonstrut.altitudeFeet) - 1);
+  rorjasonstrut.altitudeFeet[sizeof(rorjasonstrut.altitudeFeet) - 1] = '\0';
+
+  strncpy(rorjasonstrut.humidity, aSensorReadingStrut->humidity, sizeof(rorjasonstrut.humidity) - 1);
+  rorjasonstrut.humidity[sizeof(rorjasonstrut.humidity) - 1] = '\0';
+
+  strncpy(rorjasonstrut.pressure, aSensorReadingStrut->pressure, sizeof(rorjasonstrut.pressure) - 1);
+  rorjasonstrut.pressure[sizeof(rorjasonstrut.pressure) - 1] = '\0';
+
+  strncpy(rorjasonstrut.temperature, aSensorReadingStrut->temperature, sizeof(rorjasonstrut.temperature) - 1);
+  rorjasonstrut.temperature[sizeof(rorjasonstrut.temperature) - 1] = '\0';
+
+  strncpy(rorjasonstrut.RoRCurrentPosition, aRORPosition, sizeof(rorjasonstrut.RoRCurrentPosition) - 1);
+  rorjasonstrut.RoRCurrentPosition[sizeof(rorjasonstrut.RoRCurrentPosition) - 1] = '\0';
+
+  strncpy(rorjasonstrut.IsScopeParkSafe, aIsScopeParkSafe, sizeof(rorjasonstrut.IsScopeParkSafe) - 1);
+  rorjasonstrut.IsScopeParkSafe[sizeof(rorjasonstrut.IsScopeParkSafe) - 1] = '\0';
 
   if (rorwebserverDebug)
   {
     Serial.println("RORWebServer::setJsonValues()");
-    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.altitudeMeter : " + rorjasonstrut.altitudeMeter);
-    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.altitudeFeet : " + rorjasonstrut.altitudeFeet);
-    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.humidity : " + rorjasonstrut.humidity);
-    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.pressure : " + rorjasonstrut.pressure);
-    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.temperature : " + rorjasonstrut.temperature);
-    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.RoRPosition : " + rorjasonstrut.RoRPosition);
-    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.IsScopeParkSafe : " + rorjasonstrut.IsScopeParkSafe);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.altitudeMeter : ");
+    Serial.println(rorjasonstrut.altitudeMeter);
+    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.altitudeFeet : ");
+    Serial.println(rorjasonstrut.altitudeFeet);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.humidity : ");
+    Serial.println(rorjasonstrut.humidity);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.pressure : ");
+    Serial.println(rorjasonstrut.pressure);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.temperature : ");
+    Serial.println(rorjasonstrut.temperature);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.RoRCurrentPosition : ");
+    Serial.println(rorjasonstrut.RoRCurrentPosition);
+    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.IsScopeParkSafe : ");
+    Serial.println(rorjasonstrut.IsScopeParkSafe);
   }
 }
 

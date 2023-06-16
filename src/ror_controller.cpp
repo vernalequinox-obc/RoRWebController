@@ -5,13 +5,11 @@ ROR_Controller::ROR_Controller()
 {
   rorDebug = false;
 
-  scopeSafeParked_LED.begin(OUTPUT_SCOPE_PARKED_SAFE_LED, "ScopeIsParked");
-  scopeUNSafeNotParked_LED.begin(OUTPUT_SCOPE_NOT_PARKED_UNSAFE_LED, "ScopeNotParked");
-  opened_Sensor_LED.begin(OUTPUT_OPENED_LED, ROR_OPENED);
-  closed_Sensor_LED.begin(OUTPUT_CLOSED_LED, ROR_CLOSED);
-  roof_moving_LED.begin(OUTPUT_MOVING_LED, ROR_MOVING);
-  roof_unknown_LED.begin(OUTPUT_UNKNOWN_LED, ROR_UNKNOWN);
-  osc_button_LED.begin(OUTPUT_OSC_BUTTON_LED, ROR_OSCBUTTON);
+  scopeSafeParked_LED.begin(OUTPUT_SCOPE_PARKED_SAFE_LED);
+  scopeUNSafeNotParked_LED.begin(OUTPUT_SCOPE_NOT_PARKED_UNSAFE_LED);
+  opened_Sensor_LED.begin(OUTPUT_OPENED_LED);
+  closed_Sensor_LED.begin(OUTPUT_CLOSED_LED);
+  osc_button_LED.begin(OUTPUT_OSC_BUTTON_LED);
 
   pinMode(INPUT_PIN_SCOPE_PARKED_SAFE_SENSOR, INPUT);
   pinMode(INPUT_PIN_OPENED_SENSOR, INPUT);
@@ -25,12 +23,12 @@ ROR_Controller::~ROR_Controller()
 }
 
 // The the RoR Structure for displaying to the website
-RORStatus_Struct *ROR_Controller::getRORStatus()
+ROR_Status *ROR_Controller::getRORStatus()
 {
   ROR_Controller::updateRORStatus();
   return &rorStatusStruct;
-  // strlcpy(aRORStatus_Struct->rorCurrentPosition, rorStatusStruct.rorCurrentPosition, sizeof(aRORStatus_Struct->rorCurrentPosition));
-  // strlcpy(aRORStatus_Struct->ScopeParkSafe, rorStatusStruct.ScopeParkSafe, sizeof(aRORStatus_Struct->ScopeParkSafe));
+  // strlcpy(aROR_Status->rorCurrentPosition, rorStatusStruct.rorCurrentPosition, sizeof(aROR_Status->rorCurrentPosition));
+  // strlcpy(aROR_Status->IsScopeParkSafe, rorStatusStruct.IsScopeParkSafe, sizeof(aROR_Status->IsScopeParkSafe));
 }
 
 // Updates the RoR Structure with current status
@@ -41,65 +39,65 @@ void ROR_Controller::updateRORStatus()
     Serial.println("ROR_Controller::updateRORStatus(): ");
   }
 
-  if (opened_Sensor_LED.on)
+  if (itemOpen.isTrue)
   {
-    strlcpy(rorStatusStruct.rorCurrentPosition, opened_Sensor_LED.displayName, sizeof(rorStatusStruct.rorCurrentPosition));
+    strlcpy(rorStatusStruct.rorCurrentPosition, itemOpen.webName, sizeof(rorStatusStruct.rorCurrentPosition));
     rorMovingTimeCounter = 0;
-    roof_moving_LED.update(false);
-    roof_unknown_LED.update(false);
+    itemMoving.isTrue = false;
+    itemUnknown.isTrue = false;
     if (true)
     {
-      Serial.println("opened_Sensor_LED.on");
+      Serial.println("itemOpen.isTrue = true");
     }
   }
-  if (closed_Sensor_LED.on)
+  if (itemClosed.isTrue)
   {
-    strlcpy(rorStatusStruct.rorCurrentPosition, closed_Sensor_LED.displayName, sizeof(rorStatusStruct.rorCurrentPosition));
+    strlcpy(rorStatusStruct.rorCurrentPosition, itemClosed.webName, sizeof(rorStatusStruct.rorCurrentPosition));
     rorMovingTimeCounter = 0;
-    roof_moving_LED.update(false);
-    roof_unknown_LED.update(false);
+    itemMoving.isTrue = false;
+    itemUnknown.isTrue = false;
     if (true)
     {
-      Serial.println("closed_Sensor_LED.on");
+      Serial.println("itemClosed.isTrue = true");
     }
   }
   // open and close sensor are open so roof is moving but not unknown yet
-  if (!opened_Sensor_LED.on && !closed_Sensor_LED.on && !roof_unknown_LED.on)
+  if (!itemOpen.isTrue && !itemClosed.isTrue && !itemUnknown.isTrue)
   {
     if (rorMovingTimeCounter < rorMovingTimeReached)
     {
       ++rorMovingTimeCounter;
-      roof_moving_LED.update(true);
+      itemMoving.isTrue = true;
     }
     else // roof is lost
     {
-      roof_moving_LED.update(false);
-      roof_unknown_LED.update(true);
+      itemMoving.isTrue = false;
+      itemUnknown.isTrue = true;
     }
   }
-  if (roof_moving_LED.on)
+  if (itemMoving.isTrue)
   {
-    strlcpy(rorStatusStruct.rorCurrentPosition, roof_moving_LED.displayName, sizeof(rorStatusStruct.rorCurrentPosition));
+    strlcpy(rorStatusStruct.rorCurrentPosition, itemMoving.webName, sizeof(rorStatusStruct.rorCurrentPosition));
     if (true)
     {
-      Serial.println("roof_moving_LED.on");
+      Serial.println("itemMoving.isTrue = true");
     }
   }
-  if (roof_unknown_LED.on)
+  if (itemUnknown.isTrue)
   {
-    strlcpy(rorStatusStruct.rorCurrentPosition, roof_unknown_LED.displayName, sizeof(rorStatusStruct.rorCurrentPosition));
+    strlcpy(rorStatusStruct.rorCurrentPosition, itemUnknown.webName, sizeof(rorStatusStruct.rorCurrentPosition));
     if (true)
     {
-      Serial.println("roof_unknown_LED.on");
+      Serial.println("itemUnknown.isTrue = true");
     }
   }
-  if (scopeSafeParked_LED.on)
+  if (itemSafe.isTrue)
   {
-    strlcpy(rorStatusStruct.ScopeParkSafe, scopeSafeParked_LED.displayName, sizeof(rorStatusStruct.ScopeParkSafe));
+    strlcpy(rorStatusStruct.IsScopeParkSafe, itemSafe.webName, sizeof(rorStatusStruct.IsScopeParkSafe));
   }
   else
   {
-    strlcpy(rorStatusStruct.ScopeParkSafe, scopeUNSafeNotParked_LED.displayName, sizeof(rorStatusStruct.ScopeParkSafe));
+    strlcpy(rorStatusStruct.IsScopeParkSafe, itemUnSafe.webName, sizeof(rorStatusStruct.IsScopeParkSafe));
   }
 }
 
@@ -114,58 +112,64 @@ void ROR_Controller::updatedInputSensorsButtons()
   opened_Sensor_INPUT.read();
   if (opened_Sensor_INPUT.held())
   {
-    opened_Sensor_LED.update(true);
+    itemOpen.isTrue = true;
+    itemOpen.ptrLedLight->update(true);
     if (rorDebug)
     {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons():opened_Sensor_LED.update(true)");
+      Serial.println("ROR_Controller::updatedInputSensorsButtons():itemOpen.isTrue = true");
     }
   }
   else
   {
-    opened_Sensor_LED.update(false);
+    itemOpen.isTrue = false;
+    itemOpen.ptrLedLight->update(false);
     if (rorDebug)
     {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons():opened_Sensor_LED.update(false)");
+      Serial.println("ROR_Controller::updatedInputSensorsButtons():itemOpen.isTrue = false");
     }
   }
   // Closed Roof Sensor if the roof is currently closed
   closed_Sensor_INPUT.read();
   if (closed_Sensor_INPUT.held())
   {
-    closed_Sensor_LED.update(true);
+    itemClosed.isTrue = true;
+    itemClosed.ptrLedLight->update(true);
     if (rorDebug)
     {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons():closed_Sensor_LED.update(true)");
+      Serial.println("ROR_Controller::updatedInputSensorsButtons():itemClosed.isTrue = true");
     }
   }
   else
   {
-    closed_Sensor_LED.update(false);
+    itemClosed.isTrue = false;
+    itemClosed.ptrLedLight->update(false);
     if (rorDebug)
     {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons():closed_Sensor_LED.update(false)");
+      Serial.println("ROR_Controller::updatedInputSensorsButtons():itemClosed.isTrue = false");
     }
   }
   // Scope parked Sensor
   scopePark_Sensor_INPUT.read();
   if (scopePark_Sensor_INPUT.held())
   {
-    scopeSafeParked_LED.update(true);
-    scopeUNSafeNotParked_LED.update(false);
-    isScopeParkSafeSensorEngaged = true;
+    itemSafe.isTrue = true;
+    itemSafe.ptrLedLight->update(true);
+    itemUnSafe.isTrue = false;
+    itemUnSafe.ptrLedLight->update(false);
     if (rorDebug)
     {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons():scopeSafeParked_LED.update(true)");
+      Serial.println("ROR_Controller::updatedInputSensorsButtons():itemSafe.isTrue = true");
     }
   }
   else
   {
-    scopeSafeParked_LED.update(false);
-    scopeUNSafeNotParked_LED.update(true);
-    isScopeParkSafeSensorEngaged = false;
+    itemSafe.isTrue = false;
+    itemSafe.ptrLedLight->update(false);
+    itemUnSafe.isTrue = true;
+    itemUnSafe.ptrLedLight->update(true);
     if (rorDebug)
     {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons():scopeUNSafeNotParked_LED.update(true)");
+      Serial.println("ROR_Controller::updatedInputSensorsButtons():itemUnSafe.isTrue = true;");
     }
   }
   // OSC Button
@@ -173,6 +177,7 @@ void ROR_Controller::updatedInputSensorsButtons()
   if (OSC_Btn_BUTTON_INPUT.held())
   {
     osc_button_LED.update(true);
+    isEngagedRelayPulse = true;
     if (rorDebug)
     {
       Serial.println("ROR_Controller::updatedInputSensorsButtons():osc_button_LED.update(true)");
@@ -186,6 +191,51 @@ void ROR_Controller::updatedInputSensorsButtons()
       Serial.println("ROR_Controller::updatedInputSensorsButtons():osc_button_LED.update(false)");
     }
   }
+  if (osc_button_LED.on == true)
+  {
+    temporaryDisableOSCButton();
+  }
+  if (isEngagedRelayPulse)
+  {
+    engageRelayPulse();
+  }
+}
+
+void ROR_Controller::engageRelayPulse()
+{
+  if (isEngagedRelayPulse == false)
+  {
+    return;
+  }
+  long engagedRelayPulseTimer = millis() - engagedRelayPulseTimer;
+
+  if (engagedRelayPulseTimer > ROR_ENGAGE_RELAY_PULSEWIDTH)
+  {
+    if (rorDebug)
+    {
+      Serial.println("ROR_Controller::relayEngagedPulse() isEnagagedRelayPulseHapping = true");
+    }
+    isEnagagedRelayPulseHapping = true;
+  }
+}
+
+void ROR_Controller::temporaryDisableOSCButton()
+{
+  if (osc_button_LED.on == true && isTemporaryDisableOSCPulse == false)
+  {
+    if (rorDebug)
+    {
+      Serial.println("ROR_Controller::relayEngagedPulse() isEnagagedRelayPulseHapping = true");
+    }
+    isTemporaryDisableOSCHapping = true;
+    OSC_Btn_BUTTON_INPUT.isEnabled = false;
+  }
+  else if (isTemporaryDisableOSCHapping && (millis() - temporaryDisableOSCTimer) > ROR_TEMPORARY_DISABLE_OSC_BUTTON)
+  {
+    osc_button_LED.update(false);
+    isTemporaryDisableOSCHapping = false;
+    OSC_Btn_BUTTON_INPUT.isEnabled = true;
+  }
 }
 
 // This method is responsible for sending the current status of various sensors and
@@ -194,42 +244,46 @@ void ROR_Controller::updatedInputSensorsButtons()
 
 void ROR_Controller::outputStatusToSerial()
 {
-  if (isOpenedSensorEngaged)
+  if (itemOpen.isTrue)
   {
-    Serial.print("opened,");
+    Serial.print(itemOpen.serialName);
   }
-  else if (isClosedSensorEngaged)
+  else if (itemClosed.isTrue)
   {
-    Serial.print("closed,");
+    Serial.print(itemClosed.serialName);
   }
-  else
+  else if (itemMoving.isTrue)
   {
-    Serial.print("unknown,");
+    Serial.print(itemMoving.serialName);
   }
-
-  if (isScopeParkSafeSensorEngaged)
+  else if (itemUnknown.isTrue)
   {
-    Serial.print("safe,");
-  }
-  else
-  {
-    Serial.print("unsafe,");
+    Serial.print(itemUnknown.serialName);
   }
 
-  if (isOpenedSensorEngaged && !isClosedSensorEngaged && !isRoofLost)
+  if (itemSafe.isTrue)
+  {
+    Serial.print(itemSafe.serialName);
+  }
+  else if (itemUnSafe.isTrue)
+  {
+    Serial.print(itemUnSafe.serialName);
+  }
+
+  if (itemOpen.isTrue && !itemClosed.isTrue && !itemRoofLost.isTrue)
   {
     Serial.print("not_moving_o#");
   }
-  else if (isClosedSensorEngaged && !isOpenedSensorEngaged && !isRoofLost)
+  else if (itemClosed.isTrue && !itemOpen.isTrue && !itemRoofLost.isTrue)
   {
     Serial.print("not_moving_c#");
   }
-  else if (!isClosedSensorEngaged && !isOpenedSensorEngaged && !isRoofLost)
+  else if (!itemClosed.isTrue && !itemOpen.isTrue && !itemRoofLost.isTrue)
   {
     Serial.print("moving#");
   }
 
-  if (!isOpenedSensorEngaged && !isClosedSensorEngaged && isRoofLost)
+  if (!itemOpen.isTrue && !itemClosed.isTrue && itemRoofLost.isTrue)
   {
     Serial.print("unknown#");
   }
