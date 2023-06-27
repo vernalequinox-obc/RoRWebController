@@ -2,9 +2,9 @@
 #define ROR_CONTROLLER_H
 
 #include "settings.h"
-
-#define ROR_ENGAGE_RELAY_PULSEWIDTH 500
-#define ROR_TEMPORARY_DISABLE_OSC_BUTTON 2500
+#include "LedLight.h"
+#include "InputButtonLED.h"
+#include "InputButtonLEDPulse.h"
 
 struct ROR_Status
 {
@@ -17,7 +17,6 @@ struct ROR_Item
     bool isTrue;
     char webName[16];
     char serialName[16];
-    LedLight *ptrLedLight;
 };
 
 class ROR_Controller
@@ -43,35 +42,35 @@ private:
 
     ROR_Status rorStatusStruct;
 
-    // Test of the buttons
-    // Button buttonTest = {INPUT_PIN_SCOPE_PARKED_SAFE_SENSOR, HIGH, 0, 0};
-    Button scopePark_Sensor_INPUT = {INPUT_PIN_SCOPE_PARKED_SAFE_SENSOR, HIGH, 0, 0, HIGH};
-    Button opened_Sensor_INPUT = {INPUT_PIN_OPENED_SENSOR, HIGH, 0, 0, HIGH};
-    Button closed_Sensor_INPUT = {INPUT_PIN_CLOSED_SENSOR, HIGH, 0, 0, HIGH};
-    Button OSC_Btn_BUTTON_INPUT = {INPUT_PIN_OSC_BUTTON, HIGH, 0, 0, HIGH};
+    InputButtonLED roofOpenSwitch;
+    InputButtonLED roofCloseSwitch;
+    InputButtonLED scopeMountParkSwitch;
+    InputButtonLEDPulse oscPushButton;
 
-    LedLight scopeSafeParked_LED;
-    LedLight scopeUNSafeNotParked_LED;
-    LedLight opened_Sensor_LED;
-    LedLight closed_Sensor_LED;
-    LedLight osc_button_LED;
+    LedLight scopeUNSafeNotParkedLED;
+    LedLight roofMovingLED;
 
-    ROR_Item itemSafe{false, "ScopeIsParked", "safe,", &scopeSafeParked_LED};
-    ROR_Item itemUnSafe{false, "ScopeNotParked", "unsafe,", &scopeUNSafeNotParked_LED};
-    ROR_Item itemOpen{false, "Opened", "opened,", &opened_Sensor_LED};
-    ROR_Item itemClosed{false, "Closed", "closed,", &closed_Sensor_LED};
-    ROR_Item itemUnknown{false, "Unknown", "unknown,", nullptr};
-    ROR_Item itemMoving{false, "Moving", "moving,", nullptr};
+    /*
+        LedLight scopeSafeParked_LED;
+
+        LedLight opened_Sensor_LED;
+        LedLight closed_Sensor_LED;
+        LedLight osc_button_LED;
+    */
+    ROR_Item itemSafe{false, "ScopeIsParked", "safe,"};
+    ROR_Item itemUnSafe{false, "ScopeNotParked", "unsafe,"};
+    ROR_Item itemOpen{false, "Opened", "opened,"};
+    ROR_Item itemClosed{false, "Closed", "closed,"};
+    ROR_Item itemUnknown{false, "Unknown", "unknown,"};
+    ROR_Item itemMoving{false, "Moving", "moving,"};
     // other that need the # (pound)
-    ROR_Item itemMovingPound{false, "", "moving#", nullptr};
-    ROR_Item itemUnknownPound{false, "", "unknown#", nullptr};
-    ROR_Item itemNotMovingClosePound{false, "", "not_moving_c#", nullptr};
-    ROR_Item itemNotMovingOpenPound{false, "", "not_moving_o#", nullptr};
-    ROR_Item itemRoofLost{false, "", "unknown#,", nullptr};
+    ROR_Item itemMovingPound{false, "", "moving#"};
+    ROR_Item itemUnknownPound{false, "", "unknown#"};
+    ROR_Item itemNotMovingClosePound{false, "", "not_moving_c#"};
+    ROR_Item itemNotMovingOpenPound{false, "", "not_moving_o#"};
+    ROR_Item itemRoofLost{false, "", "unknown#,"};
 
     void updateRORStatus();
-    void engageRelayPulse();
-    void temporaryDisableOSCButton();
 
     /*
     // ROR Controller Defines  define in setup.h
@@ -96,7 +95,6 @@ private:
     const char *UNKNOWN = "Unkown";
     unsigned long debounceTimeLength_ScopeParkSafeSensor = 500; // scope mount park sensor switch needs a bit of debounce
     unsigned long previousDebounceTime_ScopeParkSafeSensor = 0;
-
 
     void outputStatusToSerial();
 };

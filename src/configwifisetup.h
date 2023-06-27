@@ -9,38 +9,29 @@
 #define PARAM_GATEWAY "gateway"
 
 // File paths to save input values permanently
-static constexpr char ssidPath[] = "/ssid.txt";
-static constexpr char passPath[] = "/pass.txt";
-static constexpr char ipPath[] = "/ip.txt";
-static constexpr char subPath[] = "/sub.txt";
-static constexpr char gatewayPath[] = "/gateway.txt";
-
-static char ssid[32];
-static char pass[64];
-static char ip[16];
-static char sub[16];
-static char gateway[16];
 
 class ConfigWiFiSetup
 {
 public:
   ConfigWiFiSetup();
   ~ConfigWiFiSetup();
-  boolean isThereWiFiSetting();
-  boolean runAPWebServerSetup();
+  AsyncWebServer serverAP;
+
+  bool isThereWiFiSetting();
+  bool runAPWebServerSetup();
   void clearWiFiSettings();
 
-  static void notFound(AsyncWebServerRequest *request);
-  static void saveWiFiSettings();
-  static void writeFile(fs::FS &fs, const char *path, char *message);
-  static void readFile(fs::FS &fs, const char *path, char *destination, size_t maxSize);
+  void notFound(AsyncWebServerRequest *request);
+  void writeFileWiFiSettings(fs::FS &fs, const char *path, char *message);
+  void readFileWiFiSettings(fs::FS &fs, const char *path, char *destination, size_t maxSize);
 
-  bool debugConfigWiFiSetup = true;
+  bool debugConfigWiFiSetup;
   char *getSSID();
   char *getPass();
   char *getIP();
   char *getSub();
   char *getGateway();
+  bool getDebugConfigWiFiSetup();
 
 private:
   boolean accessPointMode;
@@ -58,6 +49,18 @@ private:
   IPAddress defaultAP_localIP;
   IPAddress defaultAP_localGateway;
   IPAddress defaultAP_subnet;
+
+  char ssidPath[11];
+  char passPath[11];
+  char ipPath[8];
+  char subPath[9];
+  char gatewayPath[13];
+
+  char ssid[32];
+  char pass[64];
+  char ip[16];
+  char sub[16];
+  char gateway[16];
 };
 
 #endif

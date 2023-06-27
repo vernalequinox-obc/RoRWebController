@@ -1,7 +1,5 @@
 #include "configwifisetup.h"
 
-AsyncWebServer serverAP(80);
-
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
@@ -142,39 +140,50 @@ button {
 </html>
 )rawliteral";
 
-ConfigWiFiSetup::ConfigWiFiSetup()
+ConfigWiFiSetup::ConfigWiFiSetup() : serverAP(80)
 {
   ssid[0] = '\0';
   pass[0] = '\0';
   ip[0] = '\0';
   sub[0] = '\0';
   gateway[0] = '\0';
+  strncpy(ssidPath, "/ssid.txt", sizeof(ssidPath));
+  strncpy(passPath, "/pass.txt", sizeof(passPath));
+  strncpy(ipPath, "/ip.txt", sizeof(ipPath));
+  strncpy(subPath, "/sub.txt", sizeof(subPath));
+  strncpy(gatewayPath, "/gateway.txt", sizeof(gatewayPath));
+  debugConfigWiFiSetup = false;
 }
 
 ConfigWiFiSetup::~ConfigWiFiSetup()
 {
 }
 
-boolean ConfigWiFiSetup::isThereWiFiSetting()
+bool ConfigWiFiSetup::getDebugConfigWiFiSetup()
+{
+  return debugConfigWiFiSetup;
+}
+
+bool ConfigWiFiSetup::isThereWiFiSetting()
 {
   if (debugConfigWiFiSetup)
   {
     Serial.println("ConfigWiFiSetup::isThereWiFiSetting()");
   }
   // Load values saved in SPIFFS
-  readFile(SPIFFS, ssidPath, ssid, sizeof(ssid) - 1);
-  readFile(SPIFFS, passPath, pass, sizeof(pass) - 1);
-  readFile(SPIFFS, ipPath, ip, sizeof(ip) - 1);
-  readFile(SPIFFS, subPath, sub, sizeof(sub) - 1);
-  readFile(SPIFFS, gatewayPath, gateway, sizeof(gateway) - 1);
+  readFileWiFiSettings(SPIFFS, ssidPath, ssid, sizeof(ssid) - 1);
+  readFileWiFiSettings(SPIFFS, passPath, pass, sizeof(pass) - 1);
+  readFileWiFiSettings(SPIFFS, ipPath, ip, sizeof(ip) - 1);
+  readFileWiFiSettings(SPIFFS, subPath, sub, sizeof(sub) - 1);
+  readFileWiFiSettings(SPIFFS, gatewayPath, gateway, sizeof(gateway) - 1);
 
   if (debugConfigWiFiSetup)
   {
-    Serial.print("Read from memory:\nSSID: ");
+    Serial.print("ConfigWiFiSetup::isThereWiFiSetting() -> Read from memory:\n  SSID: ");
     Serial.print(ssid);
     Serial.print("\n  Pass: ");
     Serial.print(pass);
-    Serial.print("\n IP: ");
+    Serial.print("\n  IP: ");
     Serial.print(ip);
     Serial.print("\n  Sub: ");
     Serial.print(sub);
@@ -182,22 +191,18 @@ boolean ConfigWiFiSetup::isThereWiFiSetting()
     Serial.println(gateway);
   }
 
-  if (ssid == "" || ip == "")
+  if (ssid[0] == '\0' || ip[0] == '\0')
   {
     if (debugConfigWiFiSetup)
     {
-      Serial.println("ConfigWiFiSetup::isThereWiFiSetting() - Undefined SSID or IP address.");
+      Serial.println("ConfigWiFiSetup::isThereWiFiSetting() - return false");
     }
     return false;
   }
   if (debugConfigWiFiSetup)
   {
-    Serial.println(ssid);
-    Serial.println(pass);
-    Serial.println(ip);
-    Serial.println(gateway);
+    Serial.println("ConfigWiFiSetup::isThereWiFiSetting() - return true");
   }
-
   return true;
 }
 
@@ -222,7 +227,7 @@ char *ConfigWiFiSetup::getGateway()
   return gateway;
 }
 
-boolean ConfigWiFiSetup::runAPWebServerSetup()
+bool ConfigWiFiSetup::runAPWebServerSetup()
 {
   // Connect to Wi-Fi network with SSID and password
   if (debugConfigWiFiSetup)
@@ -240,14 +245,15 @@ boolean ConfigWiFiSetup::runAPWebServerSetup()
     Serial.println(WiFi.softAPIP());
   }
 
-  serverAP.onNotFound(notFound);
+  serverAP.onNotFound([](AsyncWebServerRequest *request)
+                      { request->send(404, "text/plain", "Not found"); });
 
   // Send web page with input fields to client
   serverAP.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               { request->send_P(200, "text/html", index_html); });
 
   // Send a GET request to <ESP_IP>/get?input1=<inputMessage>
-  serverAP.on("/", HTTP_POST, [](AsyncWebServerRequest *request)
+  serverAP.on("/", HTTP_POST, [this](AsyncWebServerRequest *request)
               {
     int params = request->params();
     for (int i = 0; i < params; i++)
@@ -260,34 +266,34 @@ boolean ConfigWiFiSetup::runAPWebServerSetup()
         {
           strncpy(ssid, p->value().c_str(), sizeof(ssid) - 1);
           ssid[sizeof(ssid) - 1] = '\0';
-          writeFile(SPIFFS, ssidPath, ssid);
+          writeFileWiFiSettings(SPIFFS, ssidPath, ssid);
         }
         // HTTP POST pass value
         if (p->name() == PARAM_PASS)
         {
           strncpy(pass, p->value().c_str(), sizeof(pass) - 1);
           pass[sizeof(pass) - 1] = '\0';
-          writeFile(SPIFFS, passPath, pass);
+          writeFileWiFiSettings(SPIFFS, passPath, pass);
         }
         // HTTP POST ip value
         if (p->name() == PARAM_IP)
         {
           strncpy(ip, p->value().c_str(), sizeof(ip) - 1);
           ip[sizeof(ip) - 1] = '\0';
-          writeFile(SPIFFS, ipPath, ip);
+          writeFileWiFiSettings(SPIFFS, ipPath, ip);
         }
         // HTTP POST gateway value
         if (p->name() == PARAM_SUB)
         {
           strncpy(sub, p->value().c_str(), sizeof(sub) - 1);
           sub[sizeof(sub) - 1] = '\0';
-          writeFile(SPIFFS, subPath, sub);
+          writeFileWiFiSettings(SPIFFS, subPath, sub);
         }
         if (p->name() == PARAM_GATEWAY)
         {
           strncpy(gateway, p->value().c_str(), sizeof(gateway) - 1);
           gateway[sizeof(gateway) - 1] = '\0';
-          writeFile(SPIFFS, gatewayPath, gateway);
+          writeFileWiFiSettings(SPIFFS, gatewayPath, gateway);
         }
         Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
       }
@@ -296,8 +302,7 @@ boolean ConfigWiFiSetup::runAPWebServerSetup()
     snprintf(response, sizeof(response), "Done. ESP will restart\n SSID: %s Pass: %s\n IP: %s\n  Sub: %s\n  Gateway: %s", ssid, pass, ip, sub, gateway);
     request->send(200, "text/plain", response);
     delay(3000);
-    ESP.restart();
-  });
+    ESP.restart(); });
 
   serverAP.begin();
   while (true)
@@ -319,50 +324,69 @@ void ConfigWiFiSetup::clearWiFiSettings()
   ip[0] = '\0';
   sub[0] = '\0';
   gateway[0] = '\0';
-  writeFile(SPIFFS, ssidPath, ssid);
-  writeFile(SPIFFS, passPath, pass);
-  writeFile(SPIFFS, ipPath, ip);
-  writeFile(SPIFFS, subPath, sub);
-  writeFile(SPIFFS, gatewayPath, gateway);
+  writeFileWiFiSettings(SPIFFS, ssidPath, ssid);
+  writeFileWiFiSettings(SPIFFS, passPath, pass);
+  writeFileWiFiSettings(SPIFFS, ipPath, ip);
+  writeFileWiFiSettings(SPIFFS, subPath, sub);
+  writeFileWiFiSettings(SPIFFS, gatewayPath, gateway);
 }
 
 // Read File from SPIFFS
-void ConfigWiFiSetup::readFile(fs::FS &fs, const char *path, char *destination, size_t maxSize)
+void ConfigWiFiSetup::readFileWiFiSettings(fs::FS &fs, const char *path, char *destination, size_t maxSize)
 {
-  Serial.printf("Reading file: %s\n", path);
+  if (debugConfigWiFiSetup)
+  {
+    Serial.printf("ConfigWiFiSetup::readFileWiFiSettings() Reading file: %s\n", path);
+  }
 
   File file = fs.open(path);
   if (!file || file.isDirectory())
   {
-    Serial.println("- failed to open file for reading");
+    if (debugConfigWiFiSetup)
+    {
+      Serial.println("ConfigWiFiSetup::readFileWiFiSettings() - failed to open file for reading");
+    }
     return;
   }
 
   size_t bytesRead = file.readBytesUntil('\n', destination, maxSize - 1);
   destination[bytesRead] = '\0';
-
-  Serial.printf("Read %d bytes from file\n", bytesRead);
+  if (debugConfigWiFiSetup)
+  {
+    Serial.printf("ConfigWiFiSetup::readFileWiFiSettings() -> Read %d bytes from file\n", bytesRead);
+  }
 }
 
 // Write file to SPIFFS
-void ConfigWiFiSetup::writeFile(fs::FS &fs, const char *path, char *message)
+void ConfigWiFiSetup::writeFileWiFiSettings(fs::FS &fs, const char *path, char *message)
 {
-  Serial.printf("Writing file: %s\r\n", path);
+  if (debugConfigWiFiSetup)
+  {
+    Serial.printf("Writing file: %s\r\n", path);
+  }
 
   File file = fs.open(path, FILE_WRITE);
   if (!file)
   {
-    Serial.println("- failed to open file for writing");
+    if (debugConfigWiFiSetup)
+    {
+      Serial.println("- failed to open file for writing");
+    }
     return;
   }
   size_t len = strlen(message);
-  if (file.write(reinterpret_cast<const uint8_t*>(message), len) == len)
+  if (file.write(reinterpret_cast<const uint8_t *>(message), len) == len)
   {
-    Serial.println("- file written");
+    if (debugConfigWiFiSetup)
+    {
+      Serial.println("- file written");
+    }
   }
   else
   {
-    Serial.println("- write failed");
+    if (debugConfigWiFiSetup)
+    {
+      Serial.println("- write failed");
+    }
   }
 }
-

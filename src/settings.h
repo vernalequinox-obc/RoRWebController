@@ -19,167 +19,33 @@ const char STATIC_GATEWAY_IP[] = {192, 168, 0, 1};
 const char STATIC_SUBNET[] = {255, 255, 255, 0};
 
 // Buttons
-#define INPUT_PIN_OSC_BUTTON 39 // GIOP39
-#define INPUT_APSETUP_BUTTON 36 // GIOP36 - Switch button for setup mode to AP
+#define OSC_PUSHBUTTON_INPUTPIN 39     // GIOP39 - Push button switch to mimic Aleko Gate Controller keyfob or OSC button
+#define APSETUP_PUSHBUTTON_INPUTPIN 36 // GIOP36 - Switch button for setup mode to AP
 
-// ROR Controller Defines
-#define INPUT_PIN_OPENED_SENSOR 35            // GIOP35   roof open sensor
-#define INPUT_PIN_CLOSED_SENSOR 34            // GIOP34   roof closed sensor
-#define INPUT_PIN_SCOPE_PARKED_SAFE_SENSOR 33 // GIOP33   scope safety Park Sensor also Arduino built in LED
+// Sensor Switches
+#define ROOF_OPEN_SWITCH_INPUTPIN 35        // GIOP35   roof open sensor
+#define ROOF_CLOSE_SWITCH_INPUTPIN 34       // GIOP34   roof closed sensor
+#define SCOPE_MOUNT_SAFE_SWITCH_INPUTPIN 33 // GIOP33   scope safety Park Sensor also Arduino built in LED
 
-#define OUTPUT_RELAY_SCOPE_PARK_SAFE 27 // GIOP27  scope safe for Aleko acting like LM102 or gragedoor beam
-#define OUTPUT_RELAY_OCS_MOMENTARY 26   // GIOP26  toggleS like a momentary push button to be used with Aleko or garagedoor opener systems
+// Relays
+#define SCOPE_MOUNT_PARK_SAFE_RELAY_OUTPUTPIN 27 // GIOP27  scope safe for Aleko acting like LM102 or gragedoor beam
+#define OCS_PULSE_RELAY_OUTPUTPIN 26             // GIOP26  toggleS like a momentary push button to be used with Aleko or garagedoor opener systems
 
 // LED Displays
-#define OUTPUT_SCOPE_PARKED_SAFE_LED 25       // GIOP25 - LED for when the scope is parked and safe
-#define OUTPUT_SCOPE_NOT_PARKED_UNSAFE_LED 23 // GIOP23 - LED for when the scope is NOT parked and unsafe to move roof
-#define OUTPUT_APSETUP_LED 4                  // GIOP04 - LED for AP Setup Mode
-#define OUTPUT_NORMAL_WIFI_LED 21             // GIOP21 - LED for connected to local network
-#define OUTPUT_CLOSED_LED 17                  // GIOP17 - LED for when the closed sensor is on as roof is closed
-#define OUTPUT_OPENED_LED 16                  // GIOP16 - LED for when the open sensor is on as roof is opened
-#define OUTPUT_MOVING_LED 15                  // GIOP15 - LED for when the roof is moving
-#define OUTPUT_UNKNOWN_LED 14                 // GIOP14 - LED for when the roof is unknown lost
-#define OUTPUT_OSC_BUTTON_LED 13              // GIOP13 - LED for when the OSC button is press
-#define OUTPUT_ENGAGE_RELAY_LED 4
-
-const uint8_t DEBOUNCE_DELAY = 10; // Used by Button class for debounce delay in milliseconds
+#define SCOPE_MOUNT_PARK_SAFE_LED 25      // GIOP25 - LED for when the scope is parked and safe
+#define SCOPE_MOUNT_PARK_NOT_SAFE_LED 23  // GIOP23 - LED for when the scope is NOT parked and unsafe to move roof
+#define APSETUP_LED 4                     // GIOP04 - LED for AP Setup Mode
+#define WIFI_NORMAL_OPERATION_LED 32      // GIOP32 - LED for connected to local network
+#define ROOF_CLOSED_LED 17                // GIOP17 - LED for when the closed sensor is on as roof is closed
+#define ROOF_OPEN_LED 16                  // GIOP16 - LED for when the open sensor is on as roof is opened
+#define ROOF_MOVING_LED 15                // GIOP15 - LED for when the roof is moving
+#define ROOF_UNKNOWN_LED 14               // GIOP14 - LED for when the roof is unknown lost
+#define OSC_BUTTON_LED 13                 // GIOP13 - LED for when the OSC button is press
+#define ROOF_MOTOR_ENGAGE_RELAY_LED 4     // GIOP4  - LED for when the Aleko Gate Control Motor power is enable or disable
 
 
 
 
-// ----------------------------------------------------------------------------
-// Definition of the Led component
-// ----------------------------------------------------------------------------
 
-class LedLight
-{
-private:
-  // state variables
-  uint8_t espPin;
-public:
-  bool on = false;
-  void begin(uint8_t aEspPinNumber)
-  {
-    espPin = aEspPinNumber;
-    pinMode(espPin, OUTPUT);
-  }
-  void update(bool aOn)
-  {
-    on = aOn;
-    digitalWrite(espPin, on ? HIGH : LOW);
-  }
-};
-
-
-
-class DebounceIt
-{
-private:
-  uint8_t espPin;
-  uint16_t state;
-  char displayName[16];
-
-public:
-  void begin(uint8_t aEspPinNumber, const char *aName)
-  {
-    begin(aEspPinNumber);
-    strncpy(displayName, aName, sizeof(displayName));
-  }
-  void begin(uint8_t aEspPinNumber)
-  {
-    espPin = aEspPinNumber;
-    state = 0;
-    pinMode(espPin, INPUT);
-  }
-  bool debounce()
-  {
-    state = (state << 1) | digitalRead(espPin) | 0xfe00;
-    if (false)
-    {
-      Serial.print("DebounceIt: ");
-      Serial.print(displayName);
-      Serial.print("state: ");
-      Serial.println(state == 0xff00);
-    }
-    return (state == 0xff00);
-  }
-};
-
-struct Button
-{
-  // state variables
-  uint8_t pin;
-  bool lastReading;
-  uint32_t lastDebounceTime;
-  uint16_t state;
-  bool isEnabled;
-
-  // methods determining the logical state of the button
-  bool pressed()
-  {
-    if (!isEnabled)
-    {
-      return state == 0;
-    }
-    return state == 1;
-  }
-
-  bool released()
-  {
-    return state == 0xffff;
-  }
-
-  bool held(uint16_t count = 0)
-  {
-    if (!isEnabled)
-    {
-      return state == 0;
-    }
-    return state > 1 + count && state < 0xffff;
-  }
-
-  // method for reading the physical state of the button
-  void read()
-  {
-    // enable or disable if disable just return
-    if (!isEnabled)
-    {
-      return;
-    }
-    // reads the voltage on the pin connected to the button
-    bool reading = digitalRead(pin);
-
-    // if the logic level has changed since the last reading,
-    // we reset the timer which counts down the necessary time
-    // beyond which we can consider that the bouncing effect
-    // has passed.
-    if (reading != lastReading)
-    {
-      lastDebounceTime = millis();
-    }
-
-    // from the moment we're out of the bouncing phase
-    // the actual status of the button can be determined
-    if (millis() - lastDebounceTime > DEBOUNCE_DELAY)
-    {
-      // don't forget that the read pin is pulled-up
-      bool pressed = reading == LOW;
-      if (pressed)
-      {
-        if (state < 0xfffe)
-          state++;
-        else if (state == 0xfffe)
-          state = 2;
-      }
-      else if (state)
-      {
-        state = state == 0xffff ? 0 : 0xffff;
-      }
-    }
-
-    // finally, each new reading is saved
-    lastReading = reading;
-  }
-};
 
 #endif
