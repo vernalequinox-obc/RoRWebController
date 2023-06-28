@@ -27,20 +27,21 @@ ROR_Controller::ROR_Controller()
   scopeMountParkSwitch.LedLight::setDeviceName("scopeMountParkSwitchLED");
   scopeMountParkSwitch.setButtonLedPin(SCOPE_MOUNT_SAFE_SWITCH_INPUTPIN, SCOPE_MOUNT_PARK_SAFE_LED);
   scopeMountParkSwitch.setDebounceTime(125);
-
   // scopeMountParkSwitch.InputButton::setDebug(true);
 
   oscPushButton.InputButton::setDeviceName("oscPushButton");
   oscPushButton.LedLight::setDeviceName("oscPushButtonLED");
   oscPushButton.setButtonLedPin(OSC_PUSHBUTTON_INPUTPIN, OSC_BUTTON_LED);
-  oscPushButton.setDebounceTime(3000);
+  oscPushButton.setDebounceTime(1000);
+  oscPushButton.setPusleTriggerDuration(250);
+  oscPushButton.setDisableDurationPostPulse(5000);
+  // oscPushButton.setDeviceEnabledButton(false);
   // oscPushButton.InputButton::setDebug(true);
 
   roofOpenSwitch.begin();
   roofCloseSwitch.begin();
   oscPushButton.begin();
   scopeMountParkSwitch.begin();
-  
   roofMovingLED.begin();
   scopeUNSafeNotParkedLED.begin();
 
@@ -204,24 +205,24 @@ void ROR_Controller::updatedInputSensorsButtons()
     }
   }
   // OSC Button
-  if (rorDebug)
+  if (rorDebug || oscPushButton.getDebugButton())
   {
     Serial.println("ROR_Controller::updatedInputSensorsButtons()::oscPushButton.update()");
   }
   oscPushButton.updateButtonPin();
-  if (oscPushButton.isPressed())
+  if (oscPushButton.isPulseTriggered())
   {
     isEngagedRelayPulse = true;
-    if (rorDebug)
+    if (rorDebug || oscPushButton.getDebugButton())
     {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons()::oscPushButton.isButtonHeld() = true");
+      Serial.println("ROR_Controller::updatedInputSensorsButtons()::oscPushButton.isPulseTriggered() = true");
     }
   }
   else
   {
-    if (rorDebug)
+    if (rorDebug || oscPushButton.getDebugButton())
     {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons()::oscPushButton.isButtonHeld() = false");
+      Serial.println("ROR_Controller::updatedInputSensorsButtons()::oscPushButton.isPulseTriggered() = false");
     }
   }
 }

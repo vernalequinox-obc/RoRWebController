@@ -22,17 +22,27 @@ uint8_t LedLight::getLedPin()
 
 void LedLight::begin()
 {
+    if (!getDeviceEnabled())
+    {
+        ledCurrentState = LOW;
+        return;
+    }
     pinMode(ledPin, OUTPUT);
 }
 
 void LedLight::updateLed(bool aLedState)
 {
+    if (!getDeviceEnabled())
+    {
+        ledCurrentState = LOW;
+        return;
+    }
     ledCurrentState = aLedState ? HIGH : LOW;
     digitalWrite(ledPin, ledCurrentState);
-    if (deviceDebug)
+    if (getDebug())
     {
         Serial.print("LedLight::updateLed(bool aOn) deviceName: ");
-        Serial.print(deviceName);
+        Serial.print(getDeviceName());
         Serial.print("  - ledCurrentState: ");
         Serial.println(ledCurrentState);
     }
@@ -40,10 +50,10 @@ void LedLight::updateLed(bool aLedState)
 
 bool LedLight::getCurrentLedState(void)
 {
-    if (deviceDebug)
+    if (getDebug())
     {
         Serial.print("LedLight::getCurrentLedState(void) deviceName: ");
-        Serial.print(deviceName);
+        Serial.print(getDeviceEnabled());
         Serial.print("  - ledCurrentState: ");
         Serial.println(ledCurrentState);
     }

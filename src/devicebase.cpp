@@ -3,6 +3,7 @@
 DeviceBase::DeviceBase()
 {
   deviceDebug = false;
+  isDeviceEnabled = true;
 }
 
 DeviceBase::~DeviceBase()
@@ -24,7 +25,17 @@ void DeviceBase::setDebug(bool aDebug)
 {
   deviceDebug = aDebug;
 }
-bool DeviceBase::isDebug(void)
+bool DeviceBase::getDebug(void)
 {
   return deviceDebug;
+}
+
+void DeviceBase::setDeviceEnabled(bool aIsDeviceEnabled)
+{
+  isDeviceEnabled = aIsDeviceEnabled;
+}
+
+bool DeviceBase::getDeviceEnabled(void)
+{
+  return isDeviceEnabled;
 }

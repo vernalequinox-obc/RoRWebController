@@ -16,13 +16,14 @@ private:
   ROR_Controller rorController;
   char rorPositionStatusStr[20] = "";
   boolean runAccessPointSetupMode = false;
-  boolean debugMain = false;
   unsigned long lastTime = 0;
   unsigned long timerDelay = WEBUPDATE;
 
   LedLight localWiFIConnected_LED;
   LedLight apMode_LED;
   InputButton apModeButton;
+
+  boolean debugMain = false;
 
 public:
   void setup()
@@ -36,18 +37,19 @@ public:
     // Initialize LED lights and button
     localWiFIConnected_LED.setLedPin(APSETUP_LED);
     localWiFIConnected_LED.setDeviceName("localWiFIConnected_LED");
-    //localWiFIConnected_LED.setDebug(true);
+    // localWiFIConnected_LED.setDebug(true);
     localWiFIConnected_LED.begin();
 
     apMode_LED.setLedPin(WIFI_NORMAL_OPERATION_LED);
     apMode_LED.setDeviceName("apMode_LED");
-    //apMode_LED.setDebug(true);
+    // apMode_LED.setDebug(true);
     apMode_LED.begin();
 
+    apModeButton.setDeviceEnabled(false); // **************** Disabled for coding and needs to be Enabled for running.
     apModeButton.setButtonPin(APSETUP_PUSHBUTTON_INPUTPIN);
     apModeButton.setDeviceName("apModeButton");
     apModeButton.setDebounceTime(3000);
-    //apModeButton.setDebug(true);
+    // apModeButton.setDebug(true);
     apModeButton.begin();
 
     initSPIFFS();
@@ -87,7 +89,7 @@ public:
 
     if (apModeButton.isPressed())
     {
-      if (debugMain)
+      if (debugMain || apModeButton.getDebug())
       {
         Serial.println("maincpp::loop - if (apModeButton.isPressed()) is - true ");
       }
@@ -98,7 +100,7 @@ public:
     }
     else
     {
-      if (debugMain)
+      if (debugMain  || apModeButton.getDebug())
       {
         Serial.println("maincpp::loop - if (apModeButton.isPressed()) is - false ");
       }

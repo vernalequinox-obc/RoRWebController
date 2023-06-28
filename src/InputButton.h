@@ -17,10 +17,9 @@ public:
   bool getCurrentPinState(void);
   bool isPressed(void);
   bool isReleased(void);
-
   void begin(void);
   void updateButtonPin(void);
-  void setIsEnabled(bool aChoice);
+
 
 protected:
   uint8_t btnPin;
@@ -28,7 +27,6 @@ protected:
   uint32_t lastDebounceTime;
   uint16_t currentPinState;
   uint16_t lastCurrentPinState;
-  bool isEnabled;
 
 private:
 };

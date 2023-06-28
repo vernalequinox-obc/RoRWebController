@@ -11,12 +11,13 @@ public:
     void setDeviceName(const char *aName);
     char *getDeviceName(void);
     void setDebug(bool aDebug);
-    bool isDebug(void);
-
-protected:
-    char deviceName[50];
-    bool deviceDebug;
+    bool getDebug(void);
+    void setDeviceEnabled(bool aIsDeviceEnabled);
+    bool getDeviceEnabled(void);
 
 private:
+    char deviceName[50];
+    bool deviceDebug;
+    bool isDeviceEnabled;
 };
 #endif

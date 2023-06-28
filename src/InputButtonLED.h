@@ -14,12 +14,24 @@ public:
     void begin(void);
     bool isPressed(void);
     bool isReleased(void);
-
     void setButtonLedPin(uint8_t aButtonPin, uint8_t aLedPin);
 
-private:
+    void setDeviceLEDName(const char *aName);
+    char *getDeviceLEDName(void);
+    void setDeviceButtonName(const char *aName);
+    char *getDeviceButtonName(void);
+    
+    void setDebugLED(bool aDebug);
+    bool getDebugLED(void);
+    void setDeviceEnabledLED(bool aIsDeviceEnabled);
+    bool getDeviceEnabledLED(void);
 
+    void setDebugButton(bool aDebug);
+    bool getDebugButton(void);
+    void setDeviceEnabledButton(bool aIsDeviceEnabled);
+    bool getDeviceEnabledButton(void);
+
+private:
 };
 
 #endif
-
