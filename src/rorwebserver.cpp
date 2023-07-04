@@ -10,15 +10,14 @@ RORWebServer::RORWebServer()
   // Set up WiFi configuration
   ssid[0] = '\0';
   password[0] = '\0';
-  local_IP = IPAddress(STATIC_LOCAL_IP[0],STATIC_LOCAL_IP[1], STATIC_LOCAL_IP[2], STATIC_LOCAL_IP[3]);
-  gateway = IPAddress(STATIC_GATEWAY_IP[0], STATIC_GATEWAY_IP[1], STATIC_GATEWAY_IP[2], STATIC_GATEWAY_IP[3] );
+  local_IP = IPAddress(STATIC_LOCAL_IP[0], STATIC_LOCAL_IP[1], STATIC_LOCAL_IP[2], STATIC_LOCAL_IP[3]);
+  gateway = IPAddress(STATIC_GATEWAY_IP[0], STATIC_GATEWAY_IP[1], STATIC_GATEWAY_IP[2], STATIC_GATEWAY_IP[3]);
   subnet = IPAddress(STATIC_SUBNET[0], STATIC_SUBNET[1], STATIC_SUBNET[2], STATIC_SUBNET[3]);
+
+  isOSCpulseTriggered = false;
 
   // Set rorwebserverDebug flag
   rorwebserverDebug = false;
-
-
-
 }
 
 // Destructor
@@ -28,11 +27,11 @@ RORWebServer::~RORWebServer()
 
 void RORWebServer::setSSID(char *aSSID)
 {
-  strncpy(ssid, aSSID, sizeof(ssid)-1);
+  strncpy(ssid, aSSID, sizeof(ssid) - 1);
 }
 void RORWebServer::setPass(char *aPass)
 {
-  strncpy(password, aPass, sizeof(password)-1);
+  strncpy(password, aPass, sizeof(password) - 1);
 }
 void RORWebServer::setIP(char *aAddress)
 {
@@ -142,7 +141,7 @@ void RORWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     DeserializationError err = deserializeJson(json, data);
     if (err)
     {
-      Serial.print(F("deserializeJson() failed with code "));
+      Serial.print(F("RORWebServer::handleWebSocketMessage -> deserializeJson() failed with code "));
       Serial.println(err.c_str());
       return;
     }
@@ -152,9 +151,10 @@ void RORWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     {
       // led.on = !led.on;
       // Do somethings as the open roof button is pressed
-      if (true)
+      isOSCpulseTriggered = true;
+      if (rorwebserverDebug)
       {
-        Serial.printf("Open Roof Button Triggered.\n ");
+        Serial.println("RORWebServer::handleWebSocketMessage -> Open Roof Button Triggered - isOSCpulseTriggered = true\n ");
       }
       notifyClients();
     }
@@ -267,4 +267,14 @@ void RORWebServer::setJsonValues(SensorBMe280_Struct *aSensorReadingStrut, char 
 void RORWebServer::cleanUpClients()
 {
   rorWebSocket->cleanupClients();
+}
+
+bool RORWebServer::getIsOSCpulseTriggered(void)
+{
+  return isOSCpulseTriggered;
+}
+
+void RORWebServer::resetIsOSCpulseTriggered(void)
+{
+  isOSCpulseTriggered = false;
 }

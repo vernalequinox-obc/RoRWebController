@@ -36,6 +36,8 @@ public:
   void setIP(char *aAddress);
   void setSub(char *aAddress);
   void setGateway(char *aAddress);
+  bool getIsOSCpulseTriggered(void);
+  void resetIsOSCpulseTriggered(void);
 
 private:
   char ssid[25];
@@ -48,6 +50,7 @@ private:
   RORJsonStruct rorjasonstrut = {"", "", "", "", "Closed"};
   AsyncWebServer *rorWebServer;
   AsyncWebSocket *rorWebSocket;
+  bool isOSCpulseTriggered;
 };
 
 #endif

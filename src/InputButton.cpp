@@ -2,11 +2,11 @@
 
 InputButton::InputButton()
 {
-  btnPin = 0;
   debounceTime = 50;
   currentPinState = LOW;
   lastCurrentPinState = HIGH;
   lastDebounceTime = 0;
+  deviceDebug = false;
 }
 
 InputButton::~InputButton()
@@ -18,34 +18,24 @@ void InputButton::setDebounceTime(uint32_t aDebounceTime)
   debounceTime = aDebounceTime;
 }
 
-void InputButton::setButtonPin(uint8_t aBtnPin)
-{
-  btnPin = aBtnPin;
-}
-
-uint8_t InputButton::getButtonPin(void)
-{
-  return btnPin;
-}
-
 void InputButton::begin(void)
 {
   if (InputButton::getDebug())
   {
     Serial.print("InputButton::begin() deviceName: ");
     Serial.print(getDeviceName());
-    Serial.print("  BtnPin: ");
-    Serial.println(btnPin);
+    Serial.print("  Button DevicePin: ");
+    Serial.println(getDevicePin());
   }
   currentPinState = LOW;
   if (!getDeviceEnabled())
   {
     return;
   }
-  pinMode(btnPin, INPUT_PULLUP);
+  pinMode(getDevicePin(), INPUT_PULLUP);
 }
 
-bool InputButton::getCurrentPinState(void)
+uint16_t InputButton::getCurrentPinState(void)
 {
   return currentPinState;
 }
@@ -57,7 +47,7 @@ void InputButton::updateButtonPin(void)
     currentPinState = LOW;
     return;
   }
-  int readingPinState = digitalRead(btnPin);
+  int readingPinState = digitalRead(getDevicePin());
 
   // reset the bounce timer
   if (readingPinState != lastCurrentPinState)
@@ -92,7 +82,7 @@ void InputButton::updateButtonPin(void)
 
 bool InputButton::isPressed(void)
 {
- 
+
   return currentPinState;
 }
 

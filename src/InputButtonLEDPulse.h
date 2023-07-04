@@ -24,7 +24,6 @@ public:
     void setDisableDurationPostPulse(uint32_t aDisableDurationPostPulse);
 
 private:
-    uint16_t pulseTriggerState;
     uint32_t pulseTriggerDuration;
     uint32_t disableDurationPostPulse;
     uint32_t pulseStartTime;

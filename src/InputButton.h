@@ -12,9 +12,7 @@ public:
 
   void setButtonPin(uint8_t aBtnPin);
   void setDebounceTime(uint32_t aDebounceTime);
-
-  uint8_t getButtonPin(void);
-  bool getCurrentPinState(void);
+  uint16_t getCurrentPinState(void);
   bool isPressed(void);
   bool isReleased(void);
   void begin(void);
@@ -22,7 +20,6 @@ public:
 
 
 protected:
-  uint8_t btnPin;
   uint32_t debounceTime;
   uint32_t lastDebounceTime;
   uint16_t currentPinState;

@@ -28,8 +28,9 @@ const char STATIC_SUBNET[] = {255, 255, 255, 0};
 #define SCOPE_MOUNT_SAFE_SWITCH_INPUTPIN 33 // GIOP33   scope safety Park Sensor also Arduino built in LED
 
 // Relays
-#define SCOPE_MOUNT_PARK_SAFE_RELAY_OUTPUTPIN 27 // GIOP27  scope safe for Aleko acting like LM102 or gragedoor beam
-#define OCS_PULSE_RELAY_OUTPUTPIN 26             // GIOP26  toggleS like a momentary push button to be used with Aleko or garagedoor opener systems
+#define SCOPE_MOUNT_PARK_SAFE_RELAY_OUTPUTPIN 27 // GIOP27  Scope safe relay for Aleko. This relay is energerized (outpin LOW engaged) in the safe posistion.
+                                                 //         The relay when energized will complete the motor circuit. When non-energized the motor does not function.
+#define OCS_PULSE_RELAY_OUTPUTPIN 26             // GIOP26  Relay toggles a momentary pulse acking like a key bod or momentery button to be used with Aleko.
 
 // LED Displays
 #define SCOPE_MOUNT_PARK_SAFE_LED 25      // GIOP25 - LED for when the scope is parked and safe

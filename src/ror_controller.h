@@ -5,6 +5,12 @@
 #include "LedLight.h"
 #include "InputButtonLED.h"
 #include "InputButtonLEDPulse.h"
+#include "relay_Control.h"
+
+#define HOLD_BUTTON_DOWN_THIS_LONG_TO_TRIGGER 1000
+#define TRIGGER_PULSE_DURATION 25
+#define DISABLE_TRIGGER_PULSE_BUTTON_DURATION 3000
+
 
 struct ROR_Status
 {
@@ -27,6 +33,7 @@ public:
 
     void updatedInputSensorsButtons();
     ROR_Status *getRORStatus();
+    void setIsEngagedRelayPulseTrue(void);
 
 private:
     bool rorDebug = false;
@@ -49,6 +56,8 @@ private:
 
     LedLight scopeUNSafeNotParkedLED;
     LedLight roofMovingLED;
+
+    Relay_Control relayControl;
 
     /*
         LedLight scopeSafeParked_LED;

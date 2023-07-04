@@ -63,5 +63,5 @@ void InputButtonLEDPulse::setDisableDurationPostPulse(uint32_t aDisableDurationP
 
 bool InputButtonLEDPulse::isPulseTriggered(void)
 {
-    return pulseTriggerState;
+    return pulseTriggered;
 }

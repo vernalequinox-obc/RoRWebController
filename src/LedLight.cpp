@@ -1,33 +1,23 @@
-#include "LedLight.h"
+#include "ledlight.h"
 
 LedLight::LedLight()
 {
-    ledPin = 0;
     ledCurrentState = LOW;
+    deviceDebug = false;
 }
 
 LedLight::~LedLight()
 {
 }
 
-void LedLight::setLedPin(uint8_t aLedPin)
-{
-    ledPin = aLedPin;
-}
-
-uint8_t LedLight::getLedPin()
-{
-    return ledPin;
-}
-
-void LedLight::begin()
+void LedLight::begin(void)
 {
     if (!getDeviceEnabled())
     {
         ledCurrentState = LOW;
         return;
     }
-    pinMode(ledPin, OUTPUT);
+    pinMode(devicePin, OUTPUT);
 }
 
 void LedLight::updateLed(bool aLedState)
@@ -38,11 +28,13 @@ void LedLight::updateLed(bool aLedState)
         return;
     }
     ledCurrentState = aLedState ? HIGH : LOW;
-    digitalWrite(ledPin, ledCurrentState);
-    if (getDebug())
+    digitalWrite(devicePin, ledCurrentState);
+    if (deviceDebug)
     {
         Serial.print("LedLight::updateLed(bool aOn) deviceName: ");
-        Serial.print(getDeviceName());
+        Serial.print(deviceName);
+        Serial.print("  - devicePin: ");
+        Serial.print(devicePin);        
         Serial.print("  - ledCurrentState: ");
         Serial.println(ledCurrentState);
     }
@@ -50,10 +42,10 @@ void LedLight::updateLed(bool aLedState)
 
 bool LedLight::getCurrentLedState(void)
 {
-    if (getDebug())
+    if (deviceDebug)
     {
         Serial.print("LedLight::getCurrentLedState(void) deviceName: ");
-        Serial.print(getDeviceEnabled());
+        Serial.print(deviceName);
         Serial.print("  - ledCurrentState: ");
         Serial.println(ledCurrentState);
     }

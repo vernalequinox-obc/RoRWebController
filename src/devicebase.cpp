@@ -2,12 +2,23 @@
 
 DeviceBase::DeviceBase()
 {
+  devicePin = 0;
   deviceDebug = false;
   isDeviceEnabled = true;
 }
 
 DeviceBase::~DeviceBase()
 {
+}
+
+void DeviceBase::setDevicePin(uint8_t aDevicePin)
+{
+  devicePin = aDevicePin;
+}
+
+uint8_t DeviceBase::getDevicePin(void)
+{
+  return devicePin;
 }
 
 void DeviceBase::setDeviceName(const char *aName)

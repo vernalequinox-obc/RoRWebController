@@ -14,6 +14,7 @@ private:
   RORWebServer rorWebServer;
   SensorBMe280_Struct mainSensorStruct;
   ROR_Controller rorController;
+
   char rorPositionStatusStr[20] = "";
   boolean runAccessPointSetupMode = false;
   unsigned long lastTime = 0;
@@ -35,18 +36,18 @@ public:
     }
 
     // Initialize LED lights and button
-    localWiFIConnected_LED.setLedPin(APSETUP_LED);
+    localWiFIConnected_LED.setDevicePin(WIFI_NORMAL_OPERATION_LED);
     localWiFIConnected_LED.setDeviceName("localWiFIConnected_LED");
     // localWiFIConnected_LED.setDebug(true);
     localWiFIConnected_LED.begin();
 
-    apMode_LED.setLedPin(WIFI_NORMAL_OPERATION_LED);
+    apMode_LED.setDevicePin(APSETUP_LED);
     apMode_LED.setDeviceName("apMode_LED");
     // apMode_LED.setDebug(true);
     apMode_LED.begin();
 
     apModeButton.setDeviceEnabled(false); // **************** Disabled for coding and needs to be Enabled for running.
-    apModeButton.setButtonPin(APSETUP_PUSHBUTTON_INPUTPIN);
+    apModeButton.setDevicePin(APSETUP_PUSHBUTTON_INPUTPIN);
     apModeButton.setDeviceName("apModeButton");
     apModeButton.setDebounceTime(3000);
     // apModeButton.setDebug(true);
@@ -63,8 +64,8 @@ public:
 
       if (initWebServer())
       {
-        apMode_LED.updateLed(false);
-        localWiFIConnected_LED.updateLed(true);
+        apMode_LED.updateLed(LOW);
+        localWiFIConnected_LED.updateLed(HIGH);
         initBME280();
         runGetUpdatesSendThemToClients();
       }
@@ -76,8 +77,8 @@ public:
         Serial.println("maincpp:setup - run configWiFiSetup.runAPWebServerSetup() ");
       }
 
-      apMode_LED.updateLed(true);
-      localWiFIConnected_LED.updateLed(false);
+      apMode_LED.updateLed(HIGH);
+      localWiFIConnected_LED.updateLed(LOW);
       configWiFiSetup.runAPWebServerSetup();
     }
   }
@@ -93,19 +94,19 @@ public:
       {
         Serial.println("maincpp::loop - if (apModeButton.isPressed()) is - true ");
       }
-      apMode_LED.updateLed(true);
-      localWiFIConnected_LED.updateLed(false);
+      apMode_LED.updateLed(HIGH);
+      localWiFIConnected_LED.updateLed(LOW);
       configWiFiSetup.clearWiFiSettings();
       ESP.restart();
     }
     else
     {
-      if (debugMain  || apModeButton.getDebug())
+      if (debugMain || apModeButton.getDebug())
       {
         Serial.println("maincpp::loop - if (apModeButton.isPressed()) is - false ");
       }
-      apMode_LED.updateLed(false);
-      localWiFIConnected_LED.updateLed(true);
+      apMode_LED.updateLed(LOW);
+      localWiFIConnected_LED.updateLed(HIGH);
     }
 
     rorWebServer.cleanUpClients();
@@ -145,14 +146,20 @@ private:
     rorWebServer.setGateway(configWiFiSetup.getGateway());
     if (rorWebServer.connectToWiFi())
     {
-      Serial.println("Main.cpp -> initWebServer() rorWebServer.connectToWiFi() is connected start WebServer and WebSocket");
+      if (debugMain)
+      {
+        Serial.println("Main.cpp -> initWebServer() rorWebServer.connectToWiFi() is connected start WebServer and WebSocket");
+      }
       rorWebServer.initWebServer();
       rorWebServer.initWebSocket();
       return true;
     }
     else
     {
-      Serial.println("Main.cpp -> initWebServer() rorWebServer.connectToWiFi() Failed to Connect to WiFi");
+      if (debugMain)
+      {
+        Serial.println("Main.cpp -> initWebServer() rorWebServer.connectToWiFi() Failed to Connect to WiFi");
+      }
     }
     return false;
   }
@@ -184,6 +191,11 @@ private:
     rorWebServer.setJsonValues(&mainSensorStruct, ptrRoRStatusStruct->rorCurrentPosition, ptrRoRStatusStruct->IsScopeParkSafe);
     rorWebServer.cleanUpClients();
     rorWebServer.notifyClients();
+    if (rorWebServer.getIsOSCpulseTriggered())
+    {
+      rorController.setIsEngagedRelayPulseTrue();
+      rorWebServer.resetIsOSCpulseTriggered();
+    }
   }
 };
 

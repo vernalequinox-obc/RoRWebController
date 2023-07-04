@@ -10,14 +10,11 @@ public:
     LedLight();
     ~LedLight();
 
-    void begin();
+    void begin(void);
     void updateLed(bool aOn);
     bool getCurrentLedState(void);
-    void setLedPin(uint8_t aLedPin);
-    uint8_t getLedPin();
 
 private:
-    uint8_t ledPin;
     uint16_t ledCurrentState;
 };
 

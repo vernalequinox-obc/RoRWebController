@@ -32,8 +32,8 @@ bool InputButtonLED::isReleased(void)
 
 void InputButtonLED::setButtonLedPin(uint8_t aButtonPin, uint8_t aLedPin)
 {
-  InputButton::setButtonPin(aButtonPin);
-  LedLight::setLedPin(aLedPin);
+  InputButton::setDevicePin(aButtonPin);
+  LedLight::setDevicePin(aLedPin);
 }
 
 void InputButtonLED::setDeviceLEDName(const char *aName)

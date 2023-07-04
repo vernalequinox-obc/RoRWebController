@@ -15,11 +15,11 @@ ROR_Controller::ROR_Controller()
   roofCloseSwitch.setDebounceTime(125);
   // roofCloseSwitch.InputButton::setDebug(true);
 
-  roofMovingLED.setLedPin(ROOF_MOVING_LED);
+  roofMovingLED.setDevicePin(ROOF_MOVING_LED);
   roofMovingLED.setDeviceName("roofMovingLED");
   // roofMovingLED.setDebug(true);
 
-  scopeUNSafeNotParkedLED.setLedPin(SCOPE_MOUNT_PARK_NOT_SAFE_LED);
+  scopeUNSafeNotParkedLED.setDevicePin(SCOPE_MOUNT_PARK_NOT_SAFE_LED);
   scopeUNSafeNotParkedLED.setDeviceName("scopeUNSafeNotParkedLED");
   // scopeUNSafeNotParkedLED.setDebug(true);
 
@@ -32,9 +32,9 @@ ROR_Controller::ROR_Controller()
   oscPushButton.InputButton::setDeviceName("oscPushButton");
   oscPushButton.LedLight::setDeviceName("oscPushButtonLED");
   oscPushButton.setButtonLedPin(OSC_PUSHBUTTON_INPUTPIN, OSC_BUTTON_LED);
-  oscPushButton.setDebounceTime(1000);
-  oscPushButton.setPusleTriggerDuration(250);
-  oscPushButton.setDisableDurationPostPulse(5000);
+  oscPushButton.setDebounceTime(HOLD_BUTTON_DOWN_THIS_LONG_TO_TRIGGER);
+  oscPushButton.setPusleTriggerDuration(TRIGGER_PULSE_DURATION);
+  oscPushButton.setDisableDurationPostPulse(DISABLE_TRIGGER_PULSE_BUTTON_DURATION);
   // oscPushButton.setDeviceEnabledButton(false);
   // oscPushButton.InputButton::setDebug(true);
 
@@ -45,6 +45,7 @@ ROR_Controller::ROR_Controller()
   roofMovingLED.begin();
   scopeUNSafeNotParkedLED.begin();
 
+  isEngagedRelayPulse = false;
   rorDebug = false;
 }
 
@@ -213,6 +214,7 @@ void ROR_Controller::updatedInputSensorsButtons()
   if (oscPushButton.isPulseTriggered())
   {
     isEngagedRelayPulse = true;
+
     if (rorDebug || oscPushButton.getDebugButton())
     {
       Serial.println("ROR_Controller::updatedInputSensorsButtons()::oscPushButton.isPulseTriggered() = true");
@@ -225,6 +227,24 @@ void ROR_Controller::updatedInputSensorsButtons()
       Serial.println("ROR_Controller::updatedInputSensorsButtons()::oscPushButton.isPulseTriggered() = false");
     }
   }
+
+  if (isEngagedRelayPulse)
+  {
+    if (rorDebug || oscPushButton.getDebugButton())
+    {
+      Serial.println("ROR_Controller::updatedInputSensorsButtons()::if (isEngagedRelayPulse) = true");
+    }
+    relayControl.updateOSCRelayPulseTime();
+    if (!relayControl.getOscTriggerRelayCurrentPinState())
+    {
+      isEngagedRelayPulse = false;
+    }
+  }
+}
+
+void ROR_Controller::setIsEngagedRelayPulseTrue(void)
+{
+  isEngagedRelayPulse = true;
 }
 
 // This method is responsible for sending the current status of various sensors and
