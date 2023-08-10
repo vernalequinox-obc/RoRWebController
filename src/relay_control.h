@@ -36,6 +36,7 @@ private:
     uint32_t pulseStartTime;
     uint16_t pulseTriggerState;
     bool pulseTriggered;
+    bool isScopeMountParkSafe;
 };
 
 #endif

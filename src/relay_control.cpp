@@ -5,17 +5,18 @@ Relay_Control::Relay_Control()
     pulseTimeDuration = RELAY_TRIGGER_PULSE_DURATION;
     pulseTriggered = false;
     oscTriggerRelayCurrentState = LOW;
+    isScopeMountParkSafe = false;
 
     oscTriggerRelay.setDeviceName("oscTriggerRelay");
     oscTriggerRelay.setDevicePin(OCS_PULSE_RELAY_OUTPUTPIN);
     oscTriggerRelay.setDeviceEnabled(true);
-    oscTriggerRelay.setDebug(false);
+    // oscTriggerRelay.setDebug(true);
 
     scopeMountParkSafeRelay.setDeviceName("scopeMountParkSafeRelay");
     scopeMountParkSafeRelay.setDevicePin(SCOPE_MOUNT_PARK_SAFE_RELAY_OUTPUTPIN);
     scopeMountParkSafeRelay.setDeviceEnabled(true);
     scopeMountParkSafeRelay.updateRelay(LOW);
-    scopeMountParkSafeRelay.setDebug(false);
+    // scopeMountParkSafeRelay.setDebug(true);
 
     oscTriggerRelay.begin();
     scopeMountParkSafeRelay.begin();
@@ -37,39 +38,48 @@ void Relay_Control::updateOSCRelayPulseTime(void)
         Serial.print("Relay_Control::updateOSCRelayPulseTime() pulseTriggered: ");
         Serial.println(pulseTriggered);
     }
-    if (!pulseTriggered)
+    if (isScopeMountParkSafe)
     {
-        pulseStartTime = millis();
-        pulseTriggered = true;
-        oscTriggerRelayCurrentState = HIGH;
-        if (oscTriggerRelay.getDebug())
+        if (!pulseTriggered)
         {
-            Serial.print("Relay_Control::updateOSCRelayPulseTime() -> Turn on the relay during the pulse. oscTriggerRelayCurrentState: ");
-            Serial.println(oscTriggerRelayCurrentState);
+            pulseStartTime = millis();
+            pulseTriggered = true;
+            oscTriggerRelayCurrentState = HIGH;
+            if (oscTriggerRelay.getDebug())
+            {
+                Serial.print("Relay_Control::updateOSCRelayPulseTime() -> Turn on the relay during the pulse. oscTriggerRelayCurrentState: ");
+                Serial.println(oscTriggerRelayCurrentState);
+            }
+            oscTriggerRelay.updateRelay(oscTriggerRelayCurrentState); // Turn on the relay during the pulse
         }
-        oscTriggerRelay.updateRelay(oscTriggerRelayCurrentState); // Turn on the relay during the pulse
-    }
-    else if (pulseTriggered && (millis() - pulseStartTime) >= pulseTimeDuration)
-    {
-        pulseTriggered = false;
-        oscTriggerRelayCurrentState = LOW;
-        if (oscTriggerRelay.getDebug())
+        else if (pulseTriggered && (millis() - pulseStartTime) >= pulseTimeDuration)
         {
-            Serial.print("Relay_Control::updateOSCRelayPulseTime() -> Turn off the relay after the pulse duration.  oscTriggerRelayCurrentState: ");
-            Serial.println(oscTriggerRelayCurrentState);
+            pulseTriggered = false;
+            oscTriggerRelayCurrentState = LOW;
+            if (oscTriggerRelay.getDebug())
+            {
+                Serial.print("Relay_Control::updateOSCRelayPulseTime() -> Turn off the relay after the pulse duration.  oscTriggerRelayCurrentState: ");
+                Serial.println(oscTriggerRelayCurrentState);
+            }
+            oscTriggerRelay.updateRelay(oscTriggerRelayCurrentState); // Turn off the relay after the pulse duration
         }
-        oscTriggerRelay.updateRelay(oscTriggerRelayCurrentState); // Turn off the relay after the pulse duration
     }
 }
 
 void Relay_Control::setScopeMountParkSafeRelay(bool aChoice)
 {
+    isScopeMountParkSafe = aChoice;
+    if (scopeMountParkSafeRelay.getDebug())
+    {
+        Serial.print("Relay_Control::setScopeMountParkSafeRelay(bool aChoice) isScopeMountParkSafe: ");
+        Serial.println(isScopeMountParkSafe);
+    }
     if (!scopeMountParkSafeRelay.getDeviceEnabled())
     {
         scopeMountParkSafeRelayCurrentState = LOW;
         return;
     }
-    scopeMountParkSafeRelayCurrentState = aChoice ? HIGH : LOW;
+    scopeMountParkSafeRelayCurrentState = isScopeMountParkSafe ? HIGH : LOW;
     scopeMountParkSafeRelay.updateRelay(scopeMountParkSafeRelayCurrentState);
     if (scopeMountParkSafeRelay.getDebug())
     {

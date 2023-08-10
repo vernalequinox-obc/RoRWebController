@@ -21,12 +21,13 @@
       <div class="box">
         <!-- Add an id attribute to the image tag -->
         <img id="roofImage" src="RORClosed.jpg">
-        <p>ROR state: <span class="reading"><span id="rorpositionID"> <strong>%RORCURRENTPOSITION%</strong></span></span></p>
+        <p>ROR state: <span class="reading"><span id="rorpositionID">
+              <strong>%RORCURRENTPOSITION%</strong></span></span></p>
         <div class="led-box">
           <div class="text-left">Scope<span id="scopeStatusTextA"></span></div>
           <div class="text-left">
             <div class="led-green"></div>
-            <div class="led-red"></div>            
+            <div class="led-red"></div>
           </div>
           <div class="text-left">&nbsp;<span id="scopeStatusTextB"></span></div>
         </div>
@@ -35,13 +36,26 @@
         </div>
       </div>
       <div class="box reduced-spacing">
-        <h5>TEMPERATURE: <span class="reading"><span id="temperatureID">%TEMPERATURE%</span> &deg;F</span></h5>
-        <h5>HUMIDITY: <span class="reading"><span id="humidityID">%HUMIDITY%</span> &percnt;</span></h5>
-        <h5>PRESSURE: <span class="reading"><span id="pressureID">%PRESSURE%</span> hPa</span></h5>
-        <h5>ALTITUDE: <span class="reading"><span id="altitudeMeterID">%ALTITUDEMETERS%</span>M -- <span id="altitudeFeetID">%ALTITUDEFEET%</span>Ft</span></h5>
+        <table style="width:100%">
+          <tr>
+            <th>INSIDE</th>
+            <th>OUTSIDE</th>
+          </tr>
+          <tr>
+            <td>
+              <h5>TEMP: <span class="reading"><span id="temperatureInID">%TEMPERATURE%</span> &deg;F</span></h5>
+              <h5>HUMIDITY: <span class="reading"><span id="humidityInID">%HUMIDITY%</span> &percnt;</span></h5>
+            </td>
+            <td>
+              <h5>TEMP: <span class="reading"><span id="temperatureOutID">%TEMPERATURE%</span> &deg;F</span></h5>
+              <h5>HUMIDITY: <span class="reading"><span id="humidityOutID">%HUMIDITY%</span> &percnt;</span></h5>
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
   </div>
 </body>
 <script src="index.js"></script>
+
 </html>

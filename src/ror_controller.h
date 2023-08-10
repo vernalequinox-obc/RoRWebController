@@ -9,7 +9,7 @@
 
 #define HOLD_BUTTON_DOWN_THIS_LONG_TO_TRIGGER 1000
 #define TRIGGER_PULSE_DURATION 25
-#define DISABLE_TRIGGER_PULSE_BUTTON_DURATION 3000
+#define DISABLE_TRIGGER_PULSE_BUTTON_DURATION 5000
 
 
 struct ROR_Status
@@ -55,7 +55,7 @@ private:
     InputButtonLEDPulse oscPushButton;
 
     LedLight scopeUNSafeNotParkedLED;
-    LedLight roofMovingLED;
+
 
     Relay_Control relayControl;
 
@@ -66,18 +66,18 @@ private:
         LedLight closed_Sensor_LED;
         LedLight osc_button_LED;
     */
-    ROR_Item itemSafe{false, "ScopeIsParked", "safe,"};
-    ROR_Item itemUnSafe{false, "ScopeNotParked", "unsafe,"};
-    ROR_Item itemOpen{false, "Opened", "opened,"};
-    ROR_Item itemClosed{false, "Closed", "closed,"};
-    ROR_Item itemUnknown{false, "Unknown", "unknown,"};
-    ROR_Item itemMoving{false, "Moving", "moving,"};
+    ROR_Item rorItemSafe{false, "ScopeIsParked", "safe,"};
+    ROR_Item rorItemUnSafe{false, "ScopeNotParked", "unsafe,"};
+    ROR_Item rorItemOpen{false, "Opened", "opened,"};
+    ROR_Item rorItemClosed{false, "Closed", "closed,"};
+    ROR_Item rorItemUnknown{false, "Unknown", "unknown,"};
+    ROR_Item rorItemMoving{false, "Moving", "moving,"};
     // other that need the # (pound)
-    ROR_Item itemMovingPound{false, "", "moving#"};
-    ROR_Item itemUnknownPound{false, "", "unknown#"};
-    ROR_Item itemNotMovingClosePound{false, "", "not_moving_c#"};
-    ROR_Item itemNotMovingOpenPound{false, "", "not_moving_o#"};
-    ROR_Item itemRoofLost{false, "", "unknown#,"};
+    ROR_Item rorItemMovingPound{false, "", "moving#"};
+    ROR_Item rorItemUnknownPound{false, "", "unknown#"};
+    ROR_Item rorItemNotMovingClosePound{false, "", "not_moving_c#"};
+    ROR_Item rorItemNotMovingOpenPound{false, "", "not_moving_o#"};
+    ROR_Item rorItemRoofLost{false, "", "unknown#,"};
 
     void updateRORStatus();
 

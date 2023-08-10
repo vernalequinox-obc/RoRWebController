@@ -1,17 +1,14 @@
 #ifndef RORWEBSERVER_H
 #define RORWEBSERVER_H
 
-#include "sensor_readings.h"
+#include "sensorBME280Structure.h"
 #include "settings.h"
 #include "ror_controller.h"
 
 struct RORJsonStruct
 {
-  char temperature[10];
-  char humidity[10];
-  char pressure[10];
-  char altitudeMeter[10];
-  char altitudeFeet[10];
+  SensorBMe280Structure indoorBME280Struct;
+  SensorBMe280Structure outdoorBME280Struct;
   char RoRCurrentPosition[8];
   char IsScopeParkSafe[15];
 };
@@ -25,7 +22,7 @@ public:
   boolean connectToWiFi();
   void initWebSocket();
   void initWebServer();
-  void setJsonValues(SensorBMe280_Struct *aSensorReadingStrut, char *aRORPosition, char *aIsScopeParkSafe);
+  void setJsonValues(SensorBMe280Structure *aIndoorBME280Strut, SensorBMe280Structure *aOutdoorBME280Struct, char *aRORPosition, char *aIsScopeParkSafe);
   void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
   // void onRootRequest(AsyncWebServerRequest *request);
   void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
@@ -47,7 +44,7 @@ private:
   IPAddress subnet;
 
   boolean rorwebserverDebug;
-  RORJsonStruct rorjasonstrut = {"", "", "", "", "Closed"};
+  RORJsonStruct rorjasonstrut;
   AsyncWebServer *rorWebServer;
   AsyncWebSocket *rorWebSocket;
   bool isOSCpulseTriggered;

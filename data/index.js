@@ -88,11 +88,16 @@ function onMessage(event) {
   }
 
   document.getElementById('rorpositionID').innerHTML = obj.status["RoRCurrentPosition"];
-  document.getElementById('temperatureID').innerHTML = obj.status["temperature"];
-  document.getElementById('humidityID').innerHTML = obj.status["humidity"];
-  document.getElementById('pressureID').innerHTML = obj.status["pressure"];
-  document.getElementById('altitudeMeterID').innerHTML = obj.status["altitudeMeter"];
-  document.getElementById('altitudeFeetID').innerHTML = obj.status["altitudeFeet"];
+  document.getElementById('temperatureInID').innerHTML = obj.status["indoorTemperature"];
+  document.getElementById('humidityInID').innerHTML = obj.status["indoorHumidity"];
+
+
+  document.getElementById('temperatureOutID').innerHTML = obj.status["outdoorTemperature"];
+  document.getElementById('humidityOutID').innerHTML = obj.status["outdoorHumidity"];
+
+  //document.getElementById('pressureID').innerHTML = obj.status["pressure"];
+  //document.getElementById('altitudeMeterID').innerHTML = obj.status["altitudeMeter"];
+  //document.getElementById('altitudeFeetID').innerHTML = obj.status["altitudeFeet"];
 
   var scopeStatusTextA = document.getElementById('scopeStatusTextA');
   var scopeStatusTextB = document.getElementById('scopeStatusTextB');
@@ -119,11 +124,10 @@ function onMessage(event) {
   if (false) {
     console.log(obj.status["IsScopeParkSafe"]);
     console.log(obj.status["RoRCurrentPosition"]);
-    console.log(obj.status["temperature"]);
-    console.log(obj.status["humidity"]);
-    console.log(obj.status["pressure"]);
-    console.log(obj.status["altitudeMeter"]);
-    console.log(obj.status["altitudeFeet"]);
+    console.log(obj.status["indoorTemperature"]);
+    console.log(obj.status["indoorHumidity"]);
+    console.log(obj.status["outdoorTemperature"]);
+    console.log(obj.status["outdoorHumidity"]);
   }
 }
 

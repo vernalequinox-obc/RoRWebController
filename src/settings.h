@@ -8,10 +8,7 @@
 #include "SPIFFS.h"
 
 #define WEBUPDATE 3000
-#define BME_SCK 18  // GIOP18 Used for weather sensor
-#define BME_MISO 19 // GIOP19 Used for weather sensor
-#define BME_MOSI 22 // GIOP22 Used for weather sensor
-#define BME_CS 5    // GIOP05 Used for weather sensor
+
 
 #define HTTP_PORT 80
 const char STATIC_LOCAL_IP[] = {192, 168, 0, 219};
@@ -36,15 +33,18 @@ const char STATIC_SUBNET[] = {255, 255, 255, 0};
 #define SCOPE_MOUNT_PARK_SAFE_LED 25      // GIOP25 - LED for when the scope is parked and safe
 #define SCOPE_MOUNT_PARK_NOT_SAFE_LED 23  // GIOP23 - LED for when the scope is NOT parked and unsafe to move roof
 #define APSETUP_LED 4                     // GIOP04 - LED for AP Setup Mode
-#define WIFI_NORMAL_OPERATION_LED 32      // GIOP32 - LED for connected to local network
-#define ROOF_CLOSED_LED 17                // GIOP17 - LED for when the closed sensor is on as roof is closed
-#define ROOF_OPEN_LED 16                  // GIOP16 - LED for when the open sensor is on as roof is opened
-#define ROOF_MOVING_LED 15                // GIOP15 - LED for when the roof is moving
-#define ROOF_UNKNOWN_LED 14               // GIOP14 - LED for when the roof is unknown lost
+#define WIFI_NORMAL_OPERATION_LED 5       // GIOP32 - LED for connected to local network
+#define ROOF_CLOSED_LED 15                // GIOP17 - LED for when the closed sensor is on as roof is closed
+#define ROOF_OPEN_LED 14                  // GIOP16 - LED for when the open sensor is on as roof is opened
+#define GIOP15 32                         // GIOP15 - 
+#define GIOP14 31                         // GIOP14 - 
 #define OSC_BUTTON_LED 13                 // GIOP13 - LED for when the OSC button is press
-#define ROOF_MOTOR_ENGAGE_RELAY_LED 4     // GIOP4  - LED for when the Aleko Gate Control Motor power is enable or disable
 
 
+#define BME_SCL_1 22    // GIOP22 Used for weather indoor sensor
+#define BME_SDA_1 21    // GIOP21 Used for weather indoor sensor
+#define BME_SCL_2 19    // GIOP19 Used for weather outdoor sensor
+#define BME_SDA_2 18    // GIOP18 Used for weather outdoor sensor
 
 
 

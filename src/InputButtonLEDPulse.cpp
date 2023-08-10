@@ -17,7 +17,6 @@ InputButtonLEDPulse::~InputButtonLEDPulse()
 void InputButtonLEDPulse::updateButtonPin(void)
 {
     InputButtonLED::updateButtonPin();
-    InputButtonLED::updateButtonPin();
 
     if (isPostPulseDisable)
     {

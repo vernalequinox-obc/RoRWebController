@@ -15,7 +15,7 @@ RORWebServer::RORWebServer()
   subnet = IPAddress(STATIC_SUBNET[0], STATIC_SUBNET[1], STATIC_SUBNET[2], STATIC_SUBNET[3]);
 
   isOSCpulseTriggered = false;
-
+  strlcpy(rorjasonstrut.RoRCurrentPosition, "Unknown", sizeof(rorjasonstrut.RoRCurrentPosition));
   // Set rorwebserverDebug flag
   rorwebserverDebug = false;
 }
@@ -172,30 +172,32 @@ void RORWebServer::notifyClients()
   {
     Serial.printf("RORWebServer::notifyClients()");
   }
-  const uint8_t size = JSON_OBJECT_SIZE(12); // add the size of your struct fields to the JSON object size
+  const uint8_t size = JSON_OBJECT_SIZE(12); // add the size of your struct fields to the JSON object size was 12
   StaticJsonDocument<size> json;
   JsonObject root = json.to<JsonObject>();
 
-  root["status"]["temperature"] = rorjasonstrut.temperature;
-  root["status"]["humidity"] = rorjasonstrut.humidity;
-  root["status"]["pressure"] = rorjasonstrut.pressure;
-  root["status"]["altitudeMeter"] = rorjasonstrut.altitudeMeter;
-  root["status"]["altitudeFeet"] = rorjasonstrut.altitudeFeet;
+  root["status"]["indoorTemperature"] = rorjasonstrut.indoorBME280Struct.temperature;
+  root["status"]["indoorHumidity"] = rorjasonstrut.indoorBME280Struct.humidity;
+
+
+  root["status"]["outdoorTemperature"] = rorjasonstrut.outdoorBME280Struct.temperature;
+  root["status"]["outdoorHumidity"] = rorjasonstrut.outdoorBME280Struct.humidity;
+
   root["status"]["RoRCurrentPosition"] = rorjasonstrut.RoRCurrentPosition;
   root["status"]["IsScopeParkSafe"] = rorjasonstrut.IsScopeParkSafe;
 
   if (rorwebserverDebug)
   {
-    Serial.print("RORWebServer::notifyClients() rorjasonstrut.altitudeMeter : ");
-    Serial.println(rorjasonstrut.altitudeMeter);
-    Serial.print("RORWebServer::notifyClients() rorjasonstrut.altitudeFeet : ");
-    Serial.println(rorjasonstrut.altitudeFeet);
-    Serial.print("RORWebServer::notifyClients() rorjasonstrut.humidity : ");
-    Serial.println(rorjasonstrut.humidity);
-    Serial.print("RORWebServer::notifyClients() rorjasonstrut.pressure : ");
-    Serial.println(rorjasonstrut.pressure);
-    Serial.print("RORWebServer::notifyClients() rorjasonstrut.temperature : ");
-    Serial.println(rorjasonstrut.temperature);
+    Serial.print("RORWebServer::notifyClients() rorjasonstrut.indoorBME280Struct.humidity : ");
+    Serial.println(rorjasonstrut.indoorBME280Struct.humidity);
+    Serial.print("RORWebServer::notifyClients() rorjasonstrut.indoorBME280Struct.temperature : ");
+    Serial.println(rorjasonstrut.indoorBME280Struct.temperature);
+
+    Serial.print("RORWebServer::notifyClients() rorjasonstrut.outdoorBME280Struct.humidity : ");
+    Serial.println(rorjasonstrut.outdoorBME280Struct.humidity);
+    Serial.print("RORWebServer::notifyClients() rorjasonstrut.outdoorBME280Struct.temperature : ");
+    Serial.println(rorjasonstrut.outdoorBME280Struct.temperature);
+
     Serial.print("RORWebServer::notifyClients() rorjasonstrut.RoRCurrentPosition: ");
     Serial.println(rorjasonstrut.RoRCurrentPosition);
     Serial.print("RORWebServer::notifyClients() rorjasonstrut.IsScopeParkSafe: ");
@@ -208,6 +210,7 @@ void RORWebServer::notifyClients()
   if (rorwebserverDebug)
   {
     // Print buffer to Serial Monitor
+    Serial.println("Print buffer to Serial Monitor: ");
     for (int i = 0; i < len; i++)
     {
       Serial.print(buffer[i]);
@@ -221,22 +224,37 @@ void RORWebServer::notifyClients()
 }
 
 // Send BME280 sensor readings over event source
-void RORWebServer::setJsonValues(SensorBMe280_Struct *aSensorReadingStrut, char *aRORPosition, char *aIsScopeParkSafe)
+void RORWebServer::setJsonValues(SensorBMe280Structure *aIndoorBME280Struct, SensorBMe280Structure *aOutdoorBME280Struct, char *aRORPosition, char *aIsScopeParkSafe)
 {
-  strncpy(rorjasonstrut.altitudeMeter, aSensorReadingStrut->altitudeMeter, sizeof(rorjasonstrut.altitudeMeter) - 1);
-  rorjasonstrut.altitudeMeter[sizeof(rorjasonstrut.altitudeMeter) - 1] = '\0';
+  strncpy(rorjasonstrut.indoorBME280Struct.altitudeMeter, aIndoorBME280Struct->altitudeMeter, sizeof(rorjasonstrut.indoorBME280Struct.altitudeMeter) - 1);
+  rorjasonstrut.indoorBME280Struct.altitudeMeter[sizeof(rorjasonstrut.indoorBME280Struct.altitudeMeter) - 1] = '\0';
 
-  strncpy(rorjasonstrut.altitudeFeet, aSensorReadingStrut->altitudeFeet, sizeof(rorjasonstrut.altitudeFeet) - 1);
-  rorjasonstrut.altitudeFeet[sizeof(rorjasonstrut.altitudeFeet) - 1] = '\0';
+  strncpy(rorjasonstrut.indoorBME280Struct.altitudeFeet, aIndoorBME280Struct->altitudeFeet, sizeof(rorjasonstrut.indoorBME280Struct.altitudeFeet) - 1);
+  rorjasonstrut.indoorBME280Struct.altitudeFeet[sizeof(rorjasonstrut.indoorBME280Struct.altitudeFeet) - 1] = '\0';
 
-  strncpy(rorjasonstrut.humidity, aSensorReadingStrut->humidity, sizeof(rorjasonstrut.humidity) - 1);
-  rorjasonstrut.humidity[sizeof(rorjasonstrut.humidity) - 1] = '\0';
+  strncpy(rorjasonstrut.indoorBME280Struct.humidity, aIndoorBME280Struct->humidity, sizeof(rorjasonstrut.indoorBME280Struct.humidity) - 1);
+  rorjasonstrut.indoorBME280Struct.humidity[sizeof(rorjasonstrut.indoorBME280Struct.humidity) - 1] = '\0';
 
-  strncpy(rorjasonstrut.pressure, aSensorReadingStrut->pressure, sizeof(rorjasonstrut.pressure) - 1);
-  rorjasonstrut.pressure[sizeof(rorjasonstrut.pressure) - 1] = '\0';
+  strncpy(rorjasonstrut.indoorBME280Struct.pressure, aIndoorBME280Struct->pressure, sizeof(rorjasonstrut.indoorBME280Struct.pressure) - 1);
+  rorjasonstrut.indoorBME280Struct.pressure[sizeof(rorjasonstrut.indoorBME280Struct.pressure) - 1] = '\0';
 
-  strncpy(rorjasonstrut.temperature, aSensorReadingStrut->temperature, sizeof(rorjasonstrut.temperature) - 1);
-  rorjasonstrut.temperature[sizeof(rorjasonstrut.temperature) - 1] = '\0';
+  strncpy(rorjasonstrut.indoorBME280Struct.temperature, aIndoorBME280Struct->temperature, sizeof(rorjasonstrut.indoorBME280Struct.temperature) - 1);
+  rorjasonstrut.indoorBME280Struct.temperature[sizeof(rorjasonstrut.indoorBME280Struct.temperature) - 1] = '\0';
+
+  strncpy(rorjasonstrut.outdoorBME280Struct.altitudeMeter, aOutdoorBME280Struct->altitudeMeter, sizeof(rorjasonstrut.outdoorBME280Struct.altitudeMeter) - 1);
+  rorjasonstrut.outdoorBME280Struct.altitudeMeter[sizeof(rorjasonstrut.outdoorBME280Struct.altitudeMeter) - 1] = '\0';
+
+  strncpy(rorjasonstrut.outdoorBME280Struct.altitudeFeet, aOutdoorBME280Struct->altitudeFeet, sizeof(rorjasonstrut.outdoorBME280Struct.altitudeFeet) - 1);
+  rorjasonstrut.outdoorBME280Struct.altitudeFeet[sizeof(rorjasonstrut.outdoorBME280Struct.altitudeFeet) - 1] = '\0';
+
+  strncpy(rorjasonstrut.outdoorBME280Struct.humidity, aOutdoorBME280Struct->humidity, sizeof(rorjasonstrut.outdoorBME280Struct.humidity) - 1);
+  rorjasonstrut.outdoorBME280Struct.humidity[sizeof(rorjasonstrut.outdoorBME280Struct.humidity) - 1] = '\0';
+
+  strncpy(rorjasonstrut.outdoorBME280Struct.pressure, aOutdoorBME280Struct->pressure, sizeof(rorjasonstrut.outdoorBME280Struct.pressure) - 1);
+  rorjasonstrut.outdoorBME280Struct.pressure[sizeof(rorjasonstrut.outdoorBME280Struct.pressure) - 1] = '\0';
+
+  strncpy(rorjasonstrut.outdoorBME280Struct.temperature, aOutdoorBME280Struct->temperature, sizeof(rorjasonstrut.outdoorBME280Struct.temperature) - 1);
+  rorjasonstrut.outdoorBME280Struct.temperature[sizeof(rorjasonstrut.outdoorBME280Struct.temperature) - 1] = '\0';
 
   strncpy(rorjasonstrut.RoRCurrentPosition, aRORPosition, sizeof(rorjasonstrut.RoRCurrentPosition) - 1);
   rorjasonstrut.RoRCurrentPosition[sizeof(rorjasonstrut.RoRCurrentPosition) - 1] = '\0';
@@ -244,22 +262,34 @@ void RORWebServer::setJsonValues(SensorBMe280_Struct *aSensorReadingStrut, char 
   strncpy(rorjasonstrut.IsScopeParkSafe, aIsScopeParkSafe, sizeof(rorjasonstrut.IsScopeParkSafe) - 1);
   rorjasonstrut.IsScopeParkSafe[sizeof(rorjasonstrut.IsScopeParkSafe) - 1] = '\0';
 
-  if (rorwebserverDebug)
+  if (rorwebserverDebug )
   {
     Serial.println("RORWebServer::setJsonValues()");
-    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.altitudeMeter : ");
-    Serial.println(rorjasonstrut.altitudeMeter);
-    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.altitudeFeet : ");
-    Serial.println(rorjasonstrut.altitudeFeet);
-    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.humidity : ");
-    Serial.println(rorjasonstrut.humidity);
-    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.pressure : ");
-    Serial.println(rorjasonstrut.pressure);
-    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.temperature : ");
-    Serial.println(rorjasonstrut.temperature);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.indoorBME280Struct.altitudeMeter : ");
+    Serial.println(rorjasonstrut.indoorBME280Struct.altitudeMeter);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.indoorBME280Struct.altitudeFeet : ");
+    Serial.println(rorjasonstrut.indoorBME280Struct.altitudeFeet);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.indoorBME280Struct.humidity : ");
+    Serial.println(rorjasonstrut.indoorBME280Struct.humidity);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.indoorBME280Struct.pressure : ");
+    Serial.println(rorjasonstrut.indoorBME280Struct.pressure);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.indoorBME280Struct.temperature : ");
+    Serial.println(rorjasonstrut.indoorBME280Struct.temperature);
+
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.outdoorBME280Struct.altitudeMeter : ");
+    Serial.println(rorjasonstrut.outdoorBME280Struct.altitudeMeter);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.outdoorBME280Struct.altitudeFeet : ");
+    Serial.println(rorjasonstrut.outdoorBME280Struct.altitudeFeet);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.outdoorBME280Struct.humidity : ");
+    Serial.println(rorjasonstrut.outdoorBME280Struct.humidity);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.outdoorBME280Struct.pressure : ");
+    Serial.println(rorjasonstrut.outdoorBME280Struct.pressure);
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.outdoorBME280Struct.temperature : ");
+    Serial.println(rorjasonstrut.outdoorBME280Struct.temperature);
+
     Serial.print("RORWebServer::setJsonValues() rorjasonstrut.RoRCurrentPosition : ");
     Serial.println(rorjasonstrut.RoRCurrentPosition);
-    Serial.println("RORWebServer::setJsonValues() rorjasonstrut.IsScopeParkSafe : ");
+    Serial.print("RORWebServer::setJsonValues() rorjasonstrut.IsScopeParkSafe : ");
     Serial.println(rorjasonstrut.IsScopeParkSafe);
   }
 }
