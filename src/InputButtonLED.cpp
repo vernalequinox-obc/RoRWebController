@@ -4,8 +4,7 @@ InputButtonLED::InputButtonLED()
 {
   setDeviceEnabledLED(true);
   setDeviceEnabledButton(true);
-  setDebugButton(false);
-  setDebugLED(false);
+  setDebug(false);
 }
 
 InputButtonLED::~InputButtonLED()
@@ -51,6 +50,12 @@ void InputButtonLED::setDeviceButtonName(const char *aName)
 char *InputButtonLED::getDeviceButtonName(void)
 {
   return InputButton::getDeviceName();
+}
+
+void InputButtonLED::setDebug(bool aDebug)
+{
+  LedLight::setDebug(aDebug);
+  InputButton::setDebug(aDebug);
 }
 
 void InputButtonLED::setDebugLED(bool aDebug)

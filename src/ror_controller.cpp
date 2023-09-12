@@ -6,13 +6,13 @@ ROR_Controller::ROR_Controller()
   roofOpenSwitch.InputButton::setDeviceName("roofOpenSwitch");
   roofOpenSwitch.LedLight::setDeviceName("roofOpenSwitchLED");
   roofOpenSwitch.setButtonLedPin(ROOF_OPEN_SWITCH_INPUTPIN, ROOF_OPEN_LED);
-  roofOpenSwitch.setDebounceTime(125);
+  roofOpenSwitch.setDebounceTime(BUTTON_DEBOUNCE_TIME);
   // roofOpenSwitch.InputButton::setDebug(true);
 
   roofCloseSwitch.InputButton::setDeviceName("roofCloseSwitch");
   roofCloseSwitch.LedLight::setDeviceName("roofCloseSwitchLED");
   roofCloseSwitch.setButtonLedPin(ROOF_CLOSE_SWITCH_INPUTPIN, ROOF_CLOSED_LED);
-  roofCloseSwitch.setDebounceTime(125);
+  roofCloseSwitch.setDebounceTime(BUTTON_DEBOUNCE_TIME);
   // roofCloseSwitch.InputButton::setDebug(true);
 
   scopeUNSafeNotParkedLED.setDevicePin(SCOPE_MOUNT_PARK_NOT_SAFE_LED);
@@ -22,14 +22,14 @@ ROR_Controller::ROR_Controller()
   scopeMountParkSwitch.InputButton::setDeviceName("scopeMountParkSwitch");
   scopeMountParkSwitch.LedLight::setDeviceName("scopeMountParkSwitchLED");
   scopeMountParkSwitch.setButtonLedPin(SCOPE_MOUNT_SAFE_SWITCH_INPUTPIN, SCOPE_MOUNT_PARK_SAFE_LED);
-  scopeMountParkSwitch.setDebounceTime(125);
+  scopeMountParkSwitch.setDebounceTime(BUTTON_DEBOUNCE_TIME);
   // scopeMountParkSwitch.InputButton::setDebug(true);
 
   oscPushButton.InputButton::setDeviceName("oscPushButton");
   oscPushButton.LedLight::setDeviceName("oscPushButtonLED");
   oscPushButton.setButtonLedPin(OSC_PUSHBUTTON_INPUTPIN, OSC_BUTTON_LED);
-  oscPushButton.setDebounceTime(HOLD_BUTTON_DOWN_THIS_LONG_TO_TRIGGER);
-  oscPushButton.setPusleTriggerDuration(TRIGGER_PULSE_DURATION);
+  oscPushButton.setDebounceTime(HOLD_BUTTON_DOWN_THRESHOLD_ALEKO);
+  oscPushButton.setPusleTriggerDuration(TRIGGER_PULSE_DURATION_ALEKO);
   oscPushButton.setDisableDurationPostPulse(DISABLE_TRIGGER_PULSE_BUTTON_DURATION);
   // oscPushButton.setDeviceEnabledButton(false);
   // oscPushButton.InputButton::setDebug(true);
@@ -39,7 +39,10 @@ ROR_Controller::ROR_Controller()
   oscPushButton.begin();
   scopeMountParkSwitch.begin();
   scopeUNSafeNotParkedLED.begin();
-
+  lastShutterState = shutterError;
+  currentRorStatus.rorCurrentPosition.shutterState = shutterError;
+  isOpenSensorClosed = false;
+  isCloseSensorClosed = false;
   isEngagedRelayPulse = false;
   rorDebug = false;
 }
@@ -50,180 +53,103 @@ ROR_Controller::~ROR_Controller()
 }
 
 // The the RoR Structure for displaying to the website
-ROR_Status *ROR_Controller::getRORStatus()
+void ROR_Controller::getRORStatus(ROR_Status &destination)
 {
-  if (rorDebug)
-  {
-    Serial.println("ROR_Controller::getRORStatus()");
-  }
   ROR_Controller::updateRORStatus();
-  return &rorStatusStruct;
-  // strlcpy(aROR_Status->rorCurrentPosition, rorStatusStruct.rorCurrentPosition, sizeof(aROR_Status->rorCurrentPosition));
-  // strlcpy(aROR_Status->IsScopeParkSafe, rorStatusStruct.IsScopeParkSafe, sizeof(aROR_Status->IsScopeParkSafe));
+  destination.scopeParkSafe.isTrue = currentRorStatus.scopeParkSafe.isTrue;
+  destination.scopeParkSafe.shutterState = currentRorStatus.scopeParkSafe.shutterState;
+  destination.rorCurrentPosition.isTrue = currentRorStatus.rorCurrentPosition.isTrue;
+  destination.rorCurrentPosition.shutterState = currentRorStatus.rorCurrentPosition.shutterState;
 }
 
 // Updates the RoR Structure with current status
+/*
+  these are the states
+const int shutterOpen = 0;
+const int shutterOpening = 1;
+const int shutterClosing = 2;
+const int shutterClosed = 3;
+const int shutterError = 4;
+const int atPark = 0;
+const int unPark = 1;
+*/
+// isOpenSensorClosed
+// isCloseSensorClosed
+// Updates the RoR Structure with current status
 void ROR_Controller::updateRORStatus()
 {
-  if (rorDebug)
-  {
-    Serial.println("ROR_Controller::updateRORStatus(): ");
-  }
+  // Initialize your variables if necessary
+  // lastShutterState = shutterClosed; // For example
+  // rorMovingTimeCounter = 0;
+  // rorMovingTimeReached = 100; // Some reasonable value
 
-  if (rorItemOpen.isTrue)
+  if (isOpenSensorClosed)
   {
-    strlcpy(rorStatusStruct.rorCurrentPosition, rorItemOpen.webName, sizeof(rorStatusStruct.rorCurrentPosition));
+    // The Open sensor is true, set the state to shutterOpen (0)
+    currentRorStatus.rorCurrentPosition.shutterState = shutterOpen;
+    lastShutterState = shutterOpen;
     rorMovingTimeCounter = 0;
-    rorItemMoving.isTrue = false;
-    rorItemUnknown.isTrue = false;
-    if (rorDebug)
-    {
-      Serial.println("rorItemOpen.isTrue = true");
-    }
   }
-  if (rorItemClosed.isTrue)
+  else if (isCloseSensorClosed)
   {
-    strlcpy(rorStatusStruct.rorCurrentPosition, rorItemClosed.webName, sizeof(rorStatusStruct.rorCurrentPosition));
+    // The Close sensor is true, set the state to shutterClosed (3)
+    currentRorStatus.rorCurrentPosition.shutterState = shutterClosed;
+    lastShutterState = shutterClosed;
     rorMovingTimeCounter = 0;
-    rorItemMoving.isTrue = false;
-    rorItemUnknown.isTrue = false;
-    if (rorDebug)
-    {
-      Serial.println("rorItemClosed.isTrue = true");
-    }
   }
-  // open and close sensor are open so roof is moving but not unknown yet
-  if (!rorItemOpen.isTrue && !rorItemClosed.isTrue && !rorItemUnknown.isTrue)
+  else if (lastShutterState == shutterOpen)
   {
-    if (rorMovingTimeCounter < rorMovingTimeReached)
-    {
-      ++rorMovingTimeCounter;
-      rorItemMoving.isTrue = true;
-    }
-    else // roof is lost
-    {
-      rorItemMoving.isTrue = false;
-      rorItemUnknown.isTrue = true;
-    }
+    // The roof has started to close (2)
+    currentRorStatus.rorCurrentPosition.shutterState = shutterClosing;
+    rorMovingTimeCounter++;
   }
-  if (rorItemMoving.isTrue)
+  else if (lastShutterState == shutterClosed)
   {
-    strlcpy(rorStatusStruct.rorCurrentPosition, rorItemMoving.webName, sizeof(rorStatusStruct.rorCurrentPosition));
-    if (rorDebug)
-    {
-      Serial.println("rorItemMoving.isTrue = true");
-    }
+    // The roof has started to open (1)
+    currentRorStatus.rorCurrentPosition.shutterState = shutterOpening;
+    rorMovingTimeCounter++;
   }
-  if (rorItemUnknown.isTrue)
+  // Check if the moving state has exceeded the threshold (4)
+  if (rorMovingTimeCounter >= rorMovingTimeReached)
   {
-    strlcpy(rorStatusStruct.rorCurrentPosition, rorItemUnknown.webName, sizeof(rorStatusStruct.rorCurrentPosition));
-    if (rorDebug)
-    {
-      Serial.println("rorItemUnknown.isTrue = true");
-    }
-  }
-  if (rorItemSafe.isTrue)
-  {
-    strlcpy(rorStatusStruct.IsScopeParkSafe, rorItemSafe.webName, sizeof(rorStatusStruct.IsScopeParkSafe));
-  }
-  else
-  {
-    strlcpy(rorStatusStruct.IsScopeParkSafe, rorItemUnSafe.webName, sizeof(rorStatusStruct.IsScopeParkSafe));
+    currentRorStatus.rorCurrentPosition.shutterState = shutterError;
   }
 }
 
+
 void ROR_Controller::updatedInputSensorsButtons()
 {
-  if (rorDebug)
-  {
-    Serial.println("ROR_Controller::updatedInputSensorsButtons()");
-  }
-
-  // Opened Roof Sensor if the roof is currently opened
+  // Opened Roof Sensor 
   roofOpenSwitch.updateButtonPin();
-  rorItemOpen.isTrue = roofOpenSwitch.isPressed();
-
-  if (rorItemOpen.isTrue)
-  {
-    if (rorDebug)
-    {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons()::roofOpenSwitch.getState() = true");
-    }
-  }
-  else
-  {
-    if (rorDebug)
-    {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons()::roofOpenSwitch.getState() = false");
-    }
-  }
-
-  // Closed Roof Sensor if the roof is currently closed
+  isOpenSensorClosed = roofOpenSwitch.isPressed();
+  // Closed Roof Sensor 
   roofCloseSwitch.updateButtonPin();
-  rorItemClosed.isTrue = roofCloseSwitch.isPressed();
-  if (rorItemClosed.isTrue)
-  {
-    if (rorDebug)
-    {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons()::roofCloseSwitch.pressed() = true");
-    }
-  }
-  else
-  {
-    if (rorDebug)
-    {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons()::roofCloseSwitch.pressed() = false");
-    }
-  }
+  isCloseSensorClosed = roofCloseSwitch.isPressed();
   // Scope parked Sensor
   scopeMountParkSwitch.updateButtonPin();
-  rorItemSafe.isTrue = scopeMountParkSwitch.isPressed();
-  if (rorItemSafe.isTrue)
+  if (scopeMountParkSwitch.isPressed())
   {
-    rorItemUnSafe.isTrue = false;
+    currentRorStatus.scopeParkSafe.isTrue = true;
+    currentRorStatus.scopeParkSafe.shutterState = atPark;
+    scopeUNSafeNotParkedLED.updateLed(false);
   }
   else
   {
-    rorItemUnSafe.isTrue = true;
-  }
-  scopeUNSafeNotParkedLED.updateLed(rorItemUnSafe.isTrue);
-  relayControl.setScopeMountParkSafeRelay(rorItemSafe.isTrue);
-  if (rorDebug || relayControl.scopeMountParkSafeRelay.getDebug())
-  {
-    Serial.print("ROR_Controller::updatedInputSensorsButtons()::scopeMountParkSwitch.pressed() rorItemUnSafe.isTrue: ");
-    Serial.println(rorItemSafe.isTrue);
+    currentRorStatus.scopeParkSafe.isTrue = false;
+    currentRorStatus.scopeParkSafe.shutterState = unPark;
+    scopeUNSafeNotParkedLED.updateLed(true);
   }
 
-  // OSC Button
-  if (rorDebug || oscPushButton.getDebugButton())
-  {
-    Serial.println("ROR_Controller::updatedInputSensorsButtons()::oscPushButton.update()");
-  }
+  relayControl.setScopeMountParkSafeRelay(currentRorStatus.scopeParkSafe.isTrue);
+
   oscPushButton.updateButtonPin();
   if (oscPushButton.isPulseTriggered())
   {
     isEngagedRelayPulse = true;
-
-    if (rorDebug || oscPushButton.getDebugButton())
-    {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons()::oscPushButton.isPulseTriggered() = true");
-    }
   }
-  else
-  {
-    if (rorDebug || oscPushButton.getDebugButton())
-    {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons()::oscPushButton.isPulseTriggered() = false");
-    }
-  }
-
   if (isEngagedRelayPulse)
   {
-    if (rorDebug || oscPushButton.getDebugButton() || relayControl.scopeMountParkSafeRelay.getDebug())
-    {
-      Serial.println("ROR_Controller::updatedInputSensorsButtons()::if (isEngagedRelayPulse) = true");
-    }
-    relayControl.setScopeMountParkSafeRelay(rorItemSafe.isTrue);
+    relayControl.setScopeMountParkSafeRelay(currentRorStatus.scopeParkSafe.isTrue);
     relayControl.updateOSCRelayPulseTime();
     if (!relayControl.getOscTriggerRelayCurrentPinState())
     {
@@ -235,57 +161,4 @@ void ROR_Controller::updatedInputSensorsButtons()
 void ROR_Controller::setIsEngagedRelayPulseTrue(void)
 {
   isEngagedRelayPulse = true;
-}
-
-// This method is responsible for sending the current status of various sensors and
-// states to the serial port for display or further processing. It constructs a
-// string containing the current status and sends it to the serial port.
-
-void ROR_Controller::outputStatusToSerial()
-{
-  if (rorItemOpen.isTrue)
-  {
-    Serial.print(rorItemOpen.serialName);
-  }
-  else if (rorItemClosed.isTrue)
-  {
-    Serial.print(rorItemClosed.serialName);
-  }
-  else if (rorItemMoving.isTrue)
-  {
-    Serial.print(rorItemMoving.serialName);
-  }
-  else if (rorItemUnknown.isTrue)
-  {
-    Serial.print(rorItemUnknown.serialName);
-  }
-
-  if (rorItemSafe.isTrue)
-  {
-    Serial.print(rorItemSafe.serialName);
-  }
-  else if (rorItemUnSafe.isTrue)
-  {
-    Serial.print(rorItemUnSafe.serialName);
-  }
-
-  if (rorItemOpen.isTrue && !rorItemClosed.isTrue && !rorItemRoofLost.isTrue)
-  {
-    Serial.print("not_moving_o#");
-  }
-  else if (rorItemClosed.isTrue && !rorItemOpen.isTrue && !rorItemRoofLost.isTrue)
-  {
-    Serial.print("not_moving_c#");
-  }
-  else if (!rorItemClosed.isTrue && !rorItemOpen.isTrue && !rorItemRoofLost.isTrue)
-  {
-    Serial.print("moving#");
-  }
-
-  if (!rorItemOpen.isTrue && !rorItemClosed.isTrue && rorItemRoofLost.isTrue)
-  {
-    Serial.print("unknown#");
-  }
-
-  Serial.println();
 }

@@ -4,14 +4,6 @@
 #include <Arduino.h>
 #include "relay.h"
 #include "settings.h"
-/*
-// Relays
-#define SCOPE_MOUNT_PARK_SAFE_RELAY_OUTPUTPIN 27 // GIOP27  Scope safe relay for Aleko. This relay is energerized (outpin LOW engaged) in the safe posistion.
-                                                 //         The relay when energized will complete the motor circuit. When non-energized the motor does not function.
-#define OCS_PULSE_RELAY_OUTPUTPIN 26             // GIOP26  Relay toggles a momentary pulse acking like a key bod or momentery button to be used with Aleko.
-
-*/
-#define RELAY_TRIGGER_PULSE_DURATION 2000
 
 class Relay_Control
 {

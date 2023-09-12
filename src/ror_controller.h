@@ -7,22 +7,26 @@
 #include "InputButtonLEDPulse.h"
 #include "relay_Control.h"
 
-#define HOLD_BUTTON_DOWN_THIS_LONG_TO_TRIGGER 1000
-#define TRIGGER_PULSE_DURATION 25
-#define DISABLE_TRIGGER_PULSE_BUTTON_DURATION 5000
+// ASCOM or Alpaca status of the dome shutter or roll-off roof. 0 = Open, 1 = Closed, 2 = Opening, 3 = Closing, 4 = Shutter status error
 
-
-struct ROR_Status
-{
-    char rorCurrentPosition[8];
-    char IsScopeParkSafe[15];
-};
+const int shutterOpen = 0;
+const int shutterOpening = 1;
+const int shutterClosing = 2;
+const int shutterClosed = 3;
+const int shutterError = 4;
+const int atPark = 0;
+const int unPark = 1;
 
 struct ROR_Item
 {
     bool isTrue;
-    char webName[16];
-    char serialName[16];
+    int shutterState;
+};
+
+struct ROR_Status
+{
+    ROR_Item rorCurrentPosition;
+    ROR_Item scopeParkSafe;
 };
 
 class ROR_Controller
@@ -32,10 +36,11 @@ public:
     ~ROR_Controller();
 
     void updatedInputSensorsButtons();
-    ROR_Status *getRORStatus();
+    void getRORStatus(ROR_Status &destination);
     void setIsEngagedRelayPulseTrue(void);
 
 private:
+    uint32_t lastShutterState;
     bool rorDebug = false;
     int rorMovingTimeCounter = 0;
     const int rorMovingTimeReached = 60 / (WEBUPDATE / 1000); // The updateRORStatus checks for roof lost once it passes a time limit of about 60 seconds.
@@ -47,7 +52,8 @@ private:
     bool isTemporaryDisableOSCHapping = false;
     long temporaryDisableOSCTimer = 0;
 
-    ROR_Status rorStatusStruct;
+    bool isOpenSensorClosed = false;
+    bool isCloseSensorClosed = false;
 
     InputButtonLED roofOpenSwitch;
     InputButtonLED roofCloseSwitch;
@@ -56,56 +62,13 @@ private:
 
     LedLight scopeUNSafeNotParkedLED;
 
-
     Relay_Control relayControl;
-
-    /*
-        LedLight scopeSafeParked_LED;
-
-        LedLight opened_Sensor_LED;
-        LedLight closed_Sensor_LED;
-        LedLight osc_button_LED;
-    */
-    ROR_Item rorItemSafe{false, "ScopeIsParked", "safe,"};
-    ROR_Item rorItemUnSafe{false, "ScopeNotParked", "unsafe,"};
-    ROR_Item rorItemOpen{false, "Opened", "opened,"};
-    ROR_Item rorItemClosed{false, "Closed", "closed,"};
-    ROR_Item rorItemUnknown{false, "Unknown", "unknown,"};
-    ROR_Item rorItemMoving{false, "Moving", "moving,"};
-    // other that need the # (pound)
-    ROR_Item rorItemMovingPound{false, "", "moving#"};
-    ROR_Item rorItemUnknownPound{false, "", "unknown#"};
-    ROR_Item rorItemNotMovingClosePound{false, "", "not_moving_c#"};
-    ROR_Item rorItemNotMovingOpenPound{false, "", "not_moving_o#"};
-    ROR_Item rorItemRoofLost{false, "", "unknown#,"};
+    ROR_Status currentRorStatus;
 
     void updateRORStatus();
 
-    /*
-    // ROR Controller Defines  define in setup.h
-
-    #define INPUT_PIN_OPENED_SENSOR 34            // roof open sensor
-    #define INPUT_PIN_CLOSED_SENSOR 35            // roof closed sensor
-    #define INPUT_PIN_SCOPE_PARKED_SAFE_SENSOR 36 // scope safety Park Sensor also Arduino built in LED
-    */
-
-    const int TURN_SCOPE_PARK_SAFE_ON = 1;
-    const int TURN_SCOPE_PARK_SAFE_OFF = 2;
-    const int OPEN_THE_ROOF = 3;
-    const int STOP_OPENING_ROOF = 4;
-    const int CLOSE_THE_ROOF = 5;
-    const int STOP_CLOSING_ROOF = 6;
-    const int PARK_STATUS = 7;
-    const int GET_STATUS = 8;
-
-    const char *OPENED = "Open";
-    const char *CLOSED = "Closed";
-    const char *MOVING = "Moving";
-    const char *UNKNOWN = "Unkown";
     unsigned long debounceTimeLength_ScopeParkSafeSensor = 500; // scope mount park sensor switch needs a bit of debounce
     unsigned long previousDebounceTime_ScopeParkSafeSensor = 0;
-
-    void outputStatusToSerial();
 };
 
 #endif

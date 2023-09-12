@@ -31,6 +31,9 @@ public:
     void setDeviceEnabledButton(bool aIsDeviceEnabled);
     bool getDeviceEnabledButton(void);
 
+    void setDebug(bool aDebug);
+
+
 private:
 };
 
