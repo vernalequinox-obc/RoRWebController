@@ -20,7 +20,6 @@ public:
   bool isThereWiFiSetting();
   bool runAPWebServerSetup();
   void clearWiFiSettings();
-
   void notFound(AsyncWebServerRequest *request);
   void writeFileWiFiSettings(fs::FS &fs, const char *path, char *message);
   void readFileWiFiSettings(fs::FS &fs, const char *path, char *destination, size_t maxSize);

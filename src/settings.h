@@ -11,7 +11,6 @@
 #define WEBUPDATE 3000
 const char ObservertoryName[] = "Vernal Equinox";
 
-#define CONNECTING_WIFI_ATTEMPTS 3
 #define HOLD_BUTTON_DOWN_THRESHOLD_ALEKO 2000      // For Aleko. How long a button must be held before it is triggered.
 #define TRIGGER_PULSE_DURATION_ALEKO 25            // For Aleko, The pulse width once the button is triggered.
 #define TRIGGER_DURATION 500                       // For Aleko. Trigger duration in milliseconds used to send a pulse to the Relay Aleko controller.
@@ -37,6 +36,7 @@ const char STATIC_SUBNET[] = {255, 255, 255, 0};   // Default for AP Setup SubNe
 #define ROOF_OPEN_SWITCH_INPUTPIN 35        // GIOP35   roof open sensor
 #define ROOF_CLOSE_SWITCH_INPUTPIN 34       // GIOP34   roof closed sensor
 #define SCOPE_MOUNT_SAFE_SWITCH_INPUTPIN 33 // GIOP33   scope safety Park Sensor also Arduino built in LED
+
 
 // Relays
 #define SCOPE_MOUNT_PARK_SAFE_RELAY_OUTPUTPIN 27 // GIOP27  Scope safe relay for Aleko. This relay is energerized (outpin LOW engaged) in the safe posistion.

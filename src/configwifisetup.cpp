@@ -229,22 +229,9 @@ char *ConfigWiFiSetup::getGateway()
 
 bool ConfigWiFiSetup::runAPWebServerSetup()
 {
-  // Connect to Wi-Fi network with SSID and password
-  if (debugConfigWiFiSetup)
-  {
-    Serial.println("ConfigWiFiSetup::runAPWebServerSetup() Setting AP (Access Point)");
-  }
-
   // NULL sets an open Access Point
   const char apSsid[] = "ROR-WIFI-MANAGER";
   WiFi.softAP(apSsid, NULL);
-
-  if (debugConfigWiFiSetup)
-  {
-    Serial.print("ConfigWiFiSetup::runAPWebServerSetup() - AP IP address: ");
-    Serial.println(WiFi.softAPIP());
-  }
-
   serverAP.onNotFound([](AsyncWebServerRequest *request)
                       { request->send(404, "text/plain", "Not found"); });
 
@@ -303,11 +290,19 @@ bool ConfigWiFiSetup::runAPWebServerSetup()
     request->send(200, "text/plain", response);
     delay(3000);
     ESP.restart(); });
-
+  bool isPressed = false;
   serverAP.begin();
+  unsigned long lastTime = 0;
+  unsigned long timerDelay = 10000;
   while (true)
   {
-    // Do not return let the esp32 reboot once inputs is finished.
+    if ((millis() - lastTime) > timerDelay)
+    {
+      Serial.println("AP WiFi started and Network Credentials WebServer running...");
+      Serial.print("SSID is \'ROR-WIFI-MANAGER\' @ IP address: " + WiFi.softAPIP().toString());
+      Serial.println("");
+      lastTime = millis();
+    }
   }
   return true;
 }

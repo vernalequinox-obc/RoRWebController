@@ -73,12 +73,15 @@ private:
   IPAddress gateway;
   IPAddress subnet;
 
+  // Timer variables
+  unsigned long previousMillis = 0;
+  const long interval = 10000; // interval to wait for Wi-Fi connection (milliseconds)
 
   uint32_t _ServerTransactionID = 0;
   char _ServerTransactionIDStr[11];
 
   uint32_t getAndIncrementServerTransactionID(void);
-  char* getServerTransactionIDStr();
+  char *getServerTransactionIDStr();
   uint32_t getServerTransactionID();
 
   boolean rorwebserverDebug;

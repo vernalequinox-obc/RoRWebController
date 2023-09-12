@@ -40,6 +40,11 @@ uint16_t InputButton::getCurrentPinState(void)
   return currentPinState;
 }
 
+int InputButton::getDigitalRead(void)
+{
+  return digitalRead(getDevicePin());
+}
+
 void InputButton::updateButtonPin(void)
 {
   if (!getDeviceEnabled())

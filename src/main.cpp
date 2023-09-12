@@ -41,15 +41,38 @@ public:
     apModeButton.setDebounceTime(HOLD_BUTTON_DOWN_THRESHOLD_AP);
     apModeButton.begin();
     initSPIFFS();
-    bool isThereWiFiSetting = false;
     bool isConnected = false;
-    isThereWiFiSetting = configWiFiSetup.isThereWiFiSetting();
+    bool isThereWiFiSetting = configWiFiSetup.isThereWiFiSetting();
+    // Check if the apModeButton is pressed during setup
     if (isThereWiFiSetting)
     {
-      int loopCount = 0;
-      while (loopCount < CONNECTING_WIFI_ATTEMPTS && !isConnected)
+      bool wasApModeButtonPressed = false;
+      while (!isConnected)
       {
+        localWiFIConnected_LED.updateLed(HIGH);
+        apModeButton.LedLight::updateLed(LOW);
         isConnected = initWebServer();
+        if (!isConnected)
+        {
+          int counter = 0;
+          while (counter <= 4)  // Flash the LEDs to signal no connection or bad credentials and give time to hold the apModeButton down.
+          {
+            localWiFIConnected_LED.updateLed(LOW);
+            apModeButton.LedLight::updateLed(HIGH);
+            delay(150);
+            localWiFIConnected_LED.updateLed(HIGH);
+            apModeButton.LedLight::updateLed(LOW);
+            delay(150);
+            wasApModeButtonPressed = isApModeHeldDownAtStartupDebounce();
+            if (wasApModeButtonPressed)
+            {
+              apModeButton.LedLight::updateLed(HIGH);
+              localWiFIConnected_LED.updateLed(LOW);
+              configWiFiSetup.runAPWebServerSetup();
+            }
+            ++counter;
+          }
+        }
       }
       if (isConnected)
       {
@@ -59,7 +82,7 @@ public:
         runGetUpdatesSendThemToClients();
       }
     }
-    if (!isThereWiFiSetting || !isConnected)
+    else
     {
       apModeButton.LedLight::updateLed(HIGH);
       localWiFIConnected_LED.updateLed(LOW);
@@ -105,6 +128,24 @@ public:
     }
   }
 
+  bool isApModeHeldDownAtStartupDebounce()
+  {
+    unsigned long startupTime = millis();
+    int buttonState = apModeButton.getDigitalRead(); // Initial state of the button
+    while (millis() - startupTime < BUTTON_DEBOUNCE_TIME)
+    {
+      // Check the button state continuously for a specified time (BUTTON_HOLD_TIME)
+      if (buttonState == 1)
+      {
+        // Button is released at any point, return false
+        return false;
+      }
+      buttonState = apModeButton.getDigitalRead(); // Update button state
+    }
+    // Button was held down continuously for BUTTON_HOLD_TIME, return true
+    return true;
+  }
+
 private:
   void initSPIFFS()
   {
@@ -122,11 +163,6 @@ private:
 
   bool initWebServer()
   {
-    // Set up the web server
-    if (debugMain)
-    {
-      Serial.println("Main.cpp -> initWebServer() setup rorWebServer ");
-    }
     rorWebServer.setSSID(configWiFiSetup.getSSID());
     rorWebServer.setPass(configWiFiSetup.getPass());
     rorWebServer.setIP(configWiFiSetup.getIP());
@@ -134,21 +170,12 @@ private:
     rorWebServer.setGateway(configWiFiSetup.getGateway());
     if (rorWebServer.connectToWiFi())
     {
-      if (debugMain)
-      {
-        Serial.println("Main.cpp -> initWebServer() rorWebServer.connectToWiFi() is connected start WebServer and WebSocket");
-      }
+      Serial.println("WiFi is connected start WebServer and WebSocket");
       rorWebServer.initWebServer();
       rorWebServer.initWebSocket();
       return true;
     }
-    else
-    {
-      if (debugMain)
-      {
-        Serial.println("Main.cpp -> initWebServer() rorWebServer.connectToWiFi() Failed to Connect to WiFi");
-      }
-    }
+    Serial.println("WiFi Failed to Connect");
     return false;
   }
 

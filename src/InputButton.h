@@ -17,6 +17,8 @@ public:
   bool isReleased(void);
   void begin(void);
   void updateButtonPin(void);
+  int  getDigitalRead(void);
+  
 
 
 protected:

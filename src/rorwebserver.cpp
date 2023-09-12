@@ -55,21 +55,17 @@ boolean RORWebServer::connectToWiFi()
     return false;
   }
   WiFi.begin(ssid, password);
-  if (rorwebserverDebug)
-  {
-    Serial.println("Connecting to WiFi..");
-  }
+  Serial.println("Connecting to WiFi...");
+  unsigned long currentMillis = millis();
+  previousMillis = currentMillis;
   while (WiFi.status() != WL_CONNECTED)
   {
-    if (rorwebserverDebug)
+    currentMillis = millis();
+    if (currentMillis - previousMillis >= interval)
     {
-      Serial.print(".");
+      Serial.println("Failed to connect.");
+      return false;
     }
-    delay(1000);
-  }
-  if (rorwebserverDebug)
-  {
-    Serial.printf(" %s\n", WiFi.localIP().toString().c_str());
   }
   return true;
 }
@@ -392,7 +388,7 @@ void RORWebServer::onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
   {
   case WS_EVT_CONNECT:
     if (rorwebserverDebug)
-    notifyClients();
+      notifyClients();
     break;
   case WS_EVT_DISCONNECT:
     break;
