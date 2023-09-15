@@ -66,9 +66,9 @@ void ROR_Controller::getRORStatus(ROR_Status &destination)
 /*
   these are the states
 const int shutterOpen = 0;
-const int shutterOpening = 1;
-const int shutterClosing = 2;
-const int shutterClosed = 3;
+const int shutterClosed = 1;
+const int shutterOpening = 2;
+const int shutterClosing = 3;
 const int shutterError = 4;
 const int atPark = 0;
 const int unPark = 1;
@@ -92,20 +92,20 @@ void ROR_Controller::updateRORStatus()
   }
   else if (isCloseSensorClosed)
   {
-    // The Close sensor is true, set the state to shutterClosed (3)
+    // The Close sensor is true, set the state to shutterClosed (1)
     currentRorStatus.rorCurrentPosition.shutterState = shutterClosed;
     lastShutterState = shutterClosed;
     rorMovingTimeCounter = 0;
   }
   else if (lastShutterState == shutterOpen)
   {
-    // The roof has started to close (2)
+    // The roof has started Closing (3)
     currentRorStatus.rorCurrentPosition.shutterState = shutterClosing;
     rorMovingTimeCounter++;
   }
   else if (lastShutterState == shutterClosed)
   {
-    // The roof has started to open (1)
+    // The roof has started Opening (2)
     currentRorStatus.rorCurrentPosition.shutterState = shutterOpening;
     rorMovingTimeCounter++;
   }

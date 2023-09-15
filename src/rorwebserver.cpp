@@ -87,10 +87,9 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on HTTP_GET /style.css");
         request->send(SPIFFS, "/style.css", "text/css"); });
 
-  rorWebServer->on(
-      "/api/v1/dome/0/connected", HTTP_GET, [this](AsyncWebServerRequest *request)
-      {
-        Serial.println("RORWebServer::rorWebServer->connected ");                    
+  rorWebServer->on("/api/v1/dome/0/connected", HTTP_GET, [this](AsyncWebServerRequest *request)
+                   {
+        Serial.println("RORWebServer::rorWebServer->on connected ");                    
         GetAlpArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response,AlpacaData);
@@ -98,10 +97,9 @@ void RORWebServer::initWebServer()
         response->printf("}");
         request->send(response); });
 
-  rorWebServer->on(
-      "/api/v1/dome/0/description", HTTP_GET, [this](AsyncWebServerRequest *request)
-      {
-        Serial.println("RORWebServer::rorWebServer->description ");                    
+  rorWebServer->on("/api/v1/dome/0/description", HTTP_GET, [this](AsyncWebServerRequest *request)
+                   {
+        Serial.println("RORWebServer::rorWebServer->on description ");                    
         GetAlpArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
@@ -109,10 +107,9 @@ void RORWebServer::initWebServer()
         response->printf("%s\"Roll Off Roof Controller with Web Server\"}", Alp_Value);
         request->send(response); });
 
-  rorWebServer->on(
-      "/api/v1/dome/0/driverinfo", HTTP_GET, [this](AsyncWebServerRequest *request)
-      {
-        Serial.println("RORWebServer::rorWebServer->driverinfo ");                    
+  rorWebServer->on("/api/v1/dome/0/driverinfo", HTTP_GET, [this](AsyncWebServerRequest *request)
+                   {
+        Serial.println("RORWebServer::rorWebServer->on driverinfo ");                    
         GetAlpArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
@@ -120,10 +117,9 @@ void RORWebServer::initWebServer()
         response->printf("%s\"RoRWebController\"}", Alp_Value);
         request->send(response); });
 
-  rorWebServer->on(
-      "/api/v1/dome/0/driverversion", HTTP_GET, [this](AsyncWebServerRequest *request)
-      {
-        Serial.println("RORWebServer::rorWebServer->deriverversion ");                    
+  rorWebServer->on("/api/v1/dome/0/driverversion", HTTP_GET, [this](AsyncWebServerRequest *request)
+                   {
+        Serial.println("RORWebServer::rorWebServer->on deriverversion ");                    
         GetAlpArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
@@ -131,10 +127,9 @@ void RORWebServer::initWebServer()
         response->printf("%s\"%s\"}", Alp_Value, VERSION);
         request->send(response); });
 
-  rorWebServer->on(
-      "/api/v1/dome/0/interfaceversion", HTTP_GET, [this](AsyncWebServerRequest *request)
-      {
-        Serial.println("RORWebServer::rorWebServer->interfaceversion ");                    
+  rorWebServer->on("/api/v1/dome/0/interfaceversion", HTTP_GET, [this](AsyncWebServerRequest *request)
+                   {
+        Serial.println("RORWebServer::rorWebServer->on interfaceversion ");                    
         GetAlpArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
@@ -142,10 +137,9 @@ void RORWebServer::initWebServer()
         response->printf("%s1}", Alp_Value);
         request->send(response); });
 
-  rorWebServer->on(
-      "/api/v1/dome/0/name", HTTP_GET, [this](AsyncWebServerRequest *request)
-      {
-        Serial.println("RORWebServer::rorWebServer->name ");                    
+  rorWebServer->on("/api/v1/dome/0/name", HTTP_GET, [this](AsyncWebServerRequest *request)
+                   {
+        Serial.println("RORWebServer::rorWebServer->on name ");                    
         GetAlpArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
@@ -153,10 +147,9 @@ void RORWebServer::initWebServer()
         response->printf("%s\"%s\"}", Alp_Value, ObservertoryName);
         request->send(response); });
 
-  rorWebServer->on(
-      "/api/v1/dome/0/cansetshutter", HTTP_GET, [this](AsyncWebServerRequest *request)
-      {
-        Serial.println("RORWebServer::rorWebServer->cansetshutter ");                    
+  rorWebServer->on("/api/v1/dome/0/cansetshutter", HTTP_GET, [this](AsyncWebServerRequest *request)
+                   {
+        Serial.println("RORWebServer::rorWebServer->on cansetshutter ");                    
         GetAlpArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response,AlpacaData);
@@ -166,7 +159,7 @@ void RORWebServer::initWebServer()
 
   rorWebServer->on("/api/v1/dome/0/slewing", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
-        Serial.println("RORWebServer::rorWebServer->cansetshutter ");                    
+        Serial.println("RORWebServer::rorWebServer->on slewing ");                    
         GetAlpArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response,AlpacaData);
@@ -185,10 +178,10 @@ void RORWebServer::initWebServer()
       "/api/v1/dome/0/openshutter", HTTP_PUT, [this](AsyncWebServerRequest *request) {}, NULL,
       [this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
       {
-        // Serial.println("RORWebServer::rorWebServer->openshutter ");
+        Serial.println("RORWebServer::rorWebServer->on openshutter ");
         PutAlpArguments(request, data, len);
-        // Serial.printf("RORWebServer::rorWebServer->openshutter AlpacaData.clientID: %d\n", AlpacaData.clientID);
-        // Serial.printf("RORWebServer::rorWebServer->openshutter AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);
+        // Serial.printf("RORWebServer::rorWebServer->on openshutter AlpacaData.clientID: %d\n", AlpacaData.clientID);
+        // Serial.printf("RORWebServer::rorWebServer->on openshutter AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
         switch (rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState)
@@ -197,7 +190,7 @@ void RORWebServer::initWebServer()
           switch (rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState)
           {
           case shutterOpen:
-            response->printf("%s1035,%s\"Shutter is already closed\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Shutter is already open\"", Alp_ErrN, Alp_ErrM);
             break;
           case shutterClosed:
             AlpacaNoErrorSchema(response, false);
@@ -232,18 +225,19 @@ void RORWebServer::initWebServer()
       NULL,
       [this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
       {
-        // Serial.println("RORWebServer::rorWebServer->closeshutter ");
+        // Serial.println("RORWebServer::rorWebServer->on closeshutter ");
         /*
                 String jsondata;
                 for (size_t i = 0; i < len; i++)
                 {
                   jsondata += (char)data[i];
                 }
-                Serial.println("RORWebServer::rorWebServer->closeshutter jsondata: " + jsondata);
+                Serial.println("RORWebServer::rorWebServer->on closeshutter jsondata: " + jsondata);
         */
+        Serial.println("RORWebServer::rorWebServer->on closeshutter ");
         PutAlpArguments(request, data, len);
-        // Serial.printf("RORWebServer::rorWebServer->closeshutter AlpacaData.clientID: %d\n", AlpacaData.clientID);
-        // Serial.printf("RORWebServer::rorWebServer->closeshutter AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);
+        // Serial.printf("RORWebServer::rorWebServer->on closeshutter AlpacaData.clientID: %d\n", AlpacaData.clientID);
+        // Serial.printf("RORWebServer::rorWebServer->on closeshutter AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
         switch (rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState)
@@ -256,7 +250,7 @@ void RORWebServer::initWebServer()
             doOSCPulseTrigger(); // Call the trigger function
             break;
           case shutterClosed:
-            response->printf("%s1035,%s\"Shutter is already open\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Shutter is already closed\"", Alp_ErrN, Alp_ErrM);
             break;
           case shutterOpening:
           case shutterClosing:
@@ -287,18 +281,18 @@ void RORWebServer::initWebServer()
       NULL,
       [this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
       {
-        Serial.println("RORWebServer::rorWebServer->abortslew ");
+        Serial.println("RORWebServer::rorWebServer->on abortslew ");
         /*
                 String jsondata;
                 for (size_t i = 0; i < len; i++)
                 {
                   jsondata += (char)data[i];
                 }
-                Serial.println("RORWebServer::rorWebServer->closeshutter jsondata: " + jsondata);
+                Serial.println("RORWebServer::rorWebServer->on closeshutter jsondata: " + jsondata);
         */
         PutAlpArguments(request, data, len);
-        Serial.printf("RORWebServer::rorWebServer->abortslew AlpacaData.clientID: %d\n", AlpacaData.clientID);
-        Serial.printf("RORWebServer::rorWebServer->abortslew AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);
+        // Serial.printf("RORWebServer::rorWebServer->on abortslew AlpacaData.clientID: %d\n", AlpacaData.clientID);
+        // Serial.printf("RORWebServer::rorWebServer->on abortslew AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
         switch (rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState)
@@ -338,10 +332,10 @@ void RORWebServer::initWebServer()
 
   rorWebServer->on("/api/v1/dome/0/shutterstatus", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
-        //Serial.println("RORWebServer::rorWebServer->shutterstatus ");                    
+        Serial.println("RORWebServer::rorWebServer->on shutterstatus");                      
         GetAlpArguments(request);
-        // Serial.printf("RORWebServer::rorWebServer->shutterstatus AlpacaData.clientID: %d\n", AlpacaData.clientID);
-        // Serial.printf("RORWebServer::rorWebServer->shutterstatus AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);        
+        // Serial.printf("RORWebServer::rorWebServer->on shutterstatus AlpacaData.clientID: %d\n", AlpacaData.clientID);
+        // Serial.printf("RORWebServer::rorWebServer->on shutterstatus AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);        
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
         AlpacaNoErrorSchema(response);
@@ -351,12 +345,79 @@ void RORWebServer::initWebServer()
   // True if the mount is in the programmed park position. Set only following a Park() operation and reset with any slew operation.
   rorWebServer->on("/api/v1/dome/0/atpark", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
+        Serial.println("RORWebServer::rorWebServer->on atpark ");  
         GetAlpArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
         AlpacaNoErrorSchema(response);
         response->printf("\"Value\": %d}", rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState);
         request->send(response); });
+
+  rorWebServer->on("/api/v1/dome/0/supportedactions", HTTP_GET, [this](AsyncWebServerRequest *request)
+                   { 
+        Serial.println("RORWebServer::rorWebServer->on supportedactions ");  
+        GetAlpArguments(request);
+        AsyncResponseStream *response = request->beginResponseStream("application/json");
+        AlpacaHeaderSchema(response, AlpacaData);
+        AlpacaNoErrorSchema(response);
+        response->printf("\"Value\": %d}", rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState);
+        request->send(response); });
+
+  rorWebServer->on(
+      "/api/v1/dome/0/action", HTTP_PUT, [this](AsyncWebServerRequest *request) {}, // This is the first lambda function
+      NULL,
+      [this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+      {
+        bool isThereAction = false;
+        char *printJsonOut;
+        char *jsonData;
+        Serial.println("RORWebServer::rorWebServer->on action ");
+        PutAlpArguments(request, data, len);
+        AsyncResponseStream *response = request->beginResponseStream("application/json");
+        AlpacaHeaderSchema(response, AlpacaData);
+        AlpacaNoErrorSchema(response, false);
+        response->print(",\"Value\": ");
+        if (strcmp(AlpacaData.actionName, "obvservingcondition") == 0)
+        {
+          jsonData = createJsonTempHumidity();
+          response->print(jsonData);
+          isThereAction = true;
+        }
+        else
+        {
+              response->print("\"\"");
+        }
+        response->print(F("}"));
+        request->send(response);
+        if(isThereAction )
+        {
+          free(printJsonOut);
+        } });
+
+  rorWebServer->on("/api/v1/dome/0/altitude", HTTP_GET, [this](AsyncWebServerRequest *request)
+                   { AscomPropertyNotImplemented(request); });
+  rorWebServer->on("/api/v1/dome/0/athome", HTTP_GET, [this](AsyncWebServerRequest *request)
+                   { AscomPropertyNotImplemented(request); });
+  rorWebServer->on("/api/v1/dome/0/azimuth", HTTP_GET, [this](AsyncWebServerRequest *request)
+                   { AscomPropertyNotImplemented(request); });
+  rorWebServer->on("/api/v1/dome/0/slaved", HTTP_PUT, [this](AsyncWebServerRequest *request)
+                   { AscomMethodNotImplemented(request); });
+  rorWebServer->on("/api/v1/dome/0/park", HTTP_PUT, [this](AsyncWebServerRequest *request)
+                   { AscomMethodNotImplemented(request); });
+  rorWebServer->on("/api/v1/dome/0/setpark", HTTP_PUT, [this](AsyncWebServerRequest *request)
+                   { AscomMethodNotImplemented(request); });
+  rorWebServer->on("/api/v1/dome/0/slewtoaltitude", HTTP_PUT, [this](AsyncWebServerRequest *request)
+                   { AscomMethodNotImplemented(request); });
+  rorWebServer->on("/api/v1/dome/0/slewtoazimuth", HTTP_PUT, [this](AsyncWebServerRequest *request)
+                   { AscomMethodNotImplemented(request); });
+  rorWebServer->on("/api/v1/dome/0/synctoazimuth", HTTP_PUT, [this](AsyncWebServerRequest *request)
+                   { AscomMethodNotImplemented(request); });
+  rorWebServer->on("/api/v1/dome/0/commandblind", HTTP_PUT, [this](AsyncWebServerRequest *request)
+                   { AscomMethodNotImplemented(request); });
+  rorWebServer->on("/api/v1/dome/0/commandbool", HTTP_PUT, [this](AsyncWebServerRequest *request)
+                   { AscomMethodNotImplemented(request); });
+  rorWebServer->on("/api/v1/dome/0/commandstring", HTTP_PUT, [this](AsyncWebServerRequest *request)
+                   { AscomMethodNotImplemented(request); });
 
   // Declare this at the class level to accumulate JSON data
 
@@ -412,11 +473,8 @@ void RORWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     DeserializationError err = deserializeJson(json, data);
     if (err)
     {
-      if (rorwebserverDebug)
-      {
-        Serial.print(F("RORWebServer::handleWebSocketMessage -> deserializeJson() failed with code "));
-        Serial.println(err.c_str());
-      }
+      Serial.print(F("RORWebServer::handleWebSocketMessage -> deserializeJson() failed with code "));
+      Serial.println(err.c_str());
       return;
     }
 
@@ -425,10 +483,6 @@ void RORWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     {
       // Do somethings as the open roof button is pressed
       isOSCpulseTriggered = true;
-      if (rorwebserverDebug)
-      {
-        Serial.println("RORWebServer::handleWebSocketMessage -> Open Roof Button Triggered - isOSCpulseTriggered = true\n ");
-      }
       notifyClients();
     }
   }
@@ -453,12 +507,43 @@ void RORWebServer::setJsonValues(SensorBMe280Structure *aIndoorBME280Struct, Sen
   rorjasonstrut.currentRorStatus.scopeParkSafe.isTrue = aRorStatus->scopeParkSafe.isTrue;
 }
 
+char *RORWebServer::createJsonTempHumidity(void)
+{
+  try
+  {
+    const uint8_t size = JSON_OBJECT_SIZE(12);
+    StaticJsonDocument<size> json;
+    JsonObject root = json.to<JsonObject>();
+    //    root["status"]["indoorTemperature"] = rorjasonstrut.indoorBME280Struct.temperature;
+    root["status"]["indoorTemperature"] = rorjasonstrut.indoorBME280Struct.temperature;
+    root["status"]["indoorHumidity"] = rorjasonstrut.indoorBME280Struct.humidity;
+
+    root["status"]["outdoorTemperature"] = rorjasonstrut.outdoorBME280Struct.temperature;
+    root["status"]["outdoorHumidity"] = rorjasonstrut.outdoorBME280Struct.humidity;
+
+    char *buffer = (char *)malloc(1024); // Allocate memory dynamically
+    if (buffer)
+    {
+      size_t len = serializeJson(json, buffer, 1024);
+      return buffer;
+    }
+    else
+    {
+      Serial.print(F(" -> deserializeJson() failed"));
+      // Handle memory allocation failure
+      return nullptr;
+    }
+  }
+  catch (const std::exception &e)
+  {
+    Serial.print(e.what());
+    Serial.println("\n");
+    return nullptr;
+  }
+}
+
 void RORWebServer::notifyClients()
 {
-  if (rorwebserverDebug)
-  {
-    Serial.printf("RORWebServer::notifyClients()");
-  }
   const uint8_t size = JSON_OBJECT_SIZE(12); // add the size of your struct fields to the JSON object size was 12
   StaticJsonDocument<size> json;
   JsonObject root = json.to<JsonObject>();
@@ -471,12 +556,6 @@ void RORWebServer::notifyClients()
 
   root["status"]["RoRCurrentPosition"] = rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState;
   root["status"]["IsScopeParkSafe"] = rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState;
-  if (rorwebserverDebug)
-  {
-    Serial.println("\n");
-    Serial.printf("RORWebServer::notifyClients() rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState: %d\n", rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState);
-    Serial.printf("RORWebServer::notifyClients() rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState: %d\n", rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState);
-  }
 
   char buffer[1024];
   size_t len = serializeJson(json, buffer);
@@ -536,15 +615,19 @@ void RORWebServer::AlpacaHeaderSchema(AsyncResponseStream *response, AlpacaCommo
 
 void RORWebServer::PutAlpArguments(AsyncWebServerRequest *request, const uint8_t *data, size_t len)
 {
-  Serial.println("RORWebServer::rorWebServer->PutAlpArguments()");
+  AlpacaData.clientID = 0;
+  AlpacaData.clientTransactionID = 0;
+  AlpacaData.boConnect = false;
+  AlpacaData.actionName[0] = '\0';
+  AlpacaData.actionParameters[0] = '\0';
+
   String jsondata;
   for (size_t i = 0; i < len; i++)
   {
     jsondata += (char)data[i];
   }
   jsondata.toLowerCase();
-  Serial.println("RORWebServer::rorWebServer->PutAlpArguments()-> jsondata: " + jsondata);
-  StaticJsonDocument<200> jsonData;
+  StaticJsonDocument<400> jsonData;
   DeserializationError error = deserializeJson(jsonData, jsondata);
   if (!error)
   {
@@ -553,40 +636,37 @@ void RORWebServer::PutAlpArguments(AsyncWebServerRequest *request, const uint8_t
     {
       AlpacaData.clientID = jsonData["clientid"].as<int>();
       AlpacaData.clientTransactionID = jsonData["clienttransactionid"].as<int>();
-
-      // Now you have the ClientID and ClientTransactionID, you can use them as needed.
-      Serial.println("ClientID: " + String(AlpacaData.clientID));
-      Serial.println("ClientTransactionID: " + String(AlpacaData.clientTransactionID));
-
-      // The rest of your processing logic here...
     }
     else
     {
       Serial.println("JSON data is missing ClientID or ClientTransactionID.");
+      return;
+    }
+    if (jsonData.containsKey("actionname"))
+    {
+      strncpy(AlpacaData.actionName, jsonData["actionname"], sizeof(AlpacaData.actionName) - 1);
+    }
+    if (jsonData.containsKey("actionparameters"))
+    {
+      strncpy(AlpacaData.actionParameters, jsonData["actionparameters"], sizeof(AlpacaData.actionParameters) - 1);
     }
   }
   else
   {
-    Serial.println("Failed to parse JSON data.");
+    Serial.print("RORWebServer::PutAlpArguments - deserializeJson(jsonData, jsondata) Error: Failed to parse JSON jsonData: " + jsondata);
+    Serial.print(error.c_str());
+    Serial.println("\n");
   }
 }
 
 void RORWebServer::GetAlpArguments(AsyncWebServerRequest *request)
 {
-  // Serial.println("RORWebServer::rorWebServer->GetAlpArguments()");
-  AlpacaData.switches.idExist = false;
-  AlpacaData.switches.intValueExist = false;
-  AlpacaData.switches.nameExist = false;
-  AlpacaData.switches.stateExist = false;
-  AlpacaData.switches.intValueExist = false;
-  AlpacaData.switches.nameExist = false;
-  AlpacaData.switches.stateExist = false;
+  // Serial.println("RORWebServer::rorWebServer->on GetAlpArguments()");
   AlpacaData.clientID = 0;
   AlpacaData.clientTransactionID = 0;
   AlpacaData.boConnect = false;
-  AlpacaData.switches.id = -1;
-  AlpacaData.switches.state = false;
-  AlpacaData.switches.intValue = -1;
+  AlpacaData.actionName[0] = '\0';
+  AlpacaData.actionParameters[0] = '\0';  
 
   // Handle GET request
   // Serial.println("RORWebServer::GetAlpArguments() HTTP_GET");
@@ -620,36 +700,6 @@ void RORWebServer::GetAlpArguments(AsyncWebServerRequest *request)
         AlpacaData.boConnect = false;
       }
     }
-    if (parameter == "id")
-    {
-      AlpacaData.switches.idExist = true;
-      AlpacaData.switches.id = p->value().toInt();
-    }
-    if (parameter == "value")
-    {
-      AlpacaData.switches.intValueExist = true;
-      AlpacaData.switches.intValue = p->value().toInt();
-    }
-    if (parameter == "name")
-    {
-      AlpacaData.switches.nameExist = true;
-      AlpacaData.switches.name = p->value();
-    }
-    if (parameter == "state")
-    {
-      AlpacaData.switches.stateExist = true;
-      String booleanString;
-      booleanString = p->value();
-      booleanString.toLowerCase();
-      if (booleanString == "true")
-      {
-        AlpacaData.switches.state = true;
-      }
-      else
-      {
-        AlpacaData.switches.state = false;
-      }
-    }
   }
 }
 
@@ -673,15 +723,45 @@ uint32_t RORWebServer::getAndIncrementServerTransactionID(void)
   return _ServerTransactionID;
 }
 
-char *RORWebServer::getServerTransactionIDStr(void)
-{
-  uint32_t clientTransactionID = getAndIncrementServerTransactionID();
-  snprintf(_ServerTransactionIDStr, sizeof(_ServerTransactionIDStr), "%lu", _ServerTransactionID);
-  return _ServerTransactionIDStr;
-}
-
 uint32_t RORWebServer::getServerTransactionID(void)
 {
   getAndIncrementServerTransactionID();
   return _ServerTransactionID;
+}
+
+void RORWebServer::AscomPropertyNotImplemented(AsyncWebServerRequest *request)
+{
+  GetAlpArguments(request);
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  response->printf("{%s%d,%s%d,",
+                   Alp_CliTraId, AlpacaData.clientTransactionID,
+                   Alp_SerTraId, AlpacaData.serverTransactionID);
+  response->print(F("\"ErrorNumber\":1024,\"ErrorMessage\":\"Property not implemented\""));
+  response->print(F("}"));
+  request->send(response);
+}
+
+void RORWebServer::AscomMethodNotImplemented(AsyncWebServerRequest *request)
+{
+  GetAlpArguments(request);
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  response->printf("{%s%d,%s%d,",
+                   Alp_CliTraId, AlpacaData.clientTransactionID,
+                   Alp_SerTraId, AlpacaData.serverTransactionID);
+  response->print(F("\"ErrorNumber\":1024,\"ErrorMessage\":\"Method not implemented\""));
+  response->print(F("}"));
+  request->send(response);
+}
+
+void RORWebServer::AscomNoActions(AsyncWebServerRequest *request)
+{
+  GetAlpArguments(request);
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  response->printf("{%s%d,%s%d,%s",
+                   Alp_CliTraId, AlpacaData.clientTransactionID,
+                   Alp_SerTraId, AlpacaData.serverTransactionID,
+                   Alp_NoErrors);
+  response->print(F(",\"Value\":[]"));
+  response->print(F("}"));
+  request->send(response);
 }

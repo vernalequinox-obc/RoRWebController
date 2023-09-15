@@ -10,9 +10,9 @@
 // ASCOM or Alpaca status of the dome shutter or roll-off roof. 0 = Open, 1 = Closed, 2 = Opening, 3 = Closing, 4 = Shutter status error
 
 const int shutterOpen = 0;
-const int shutterOpening = 1;
-const int shutterClosing = 2;
-const int shutterClosed = 3;
+const int shutterClosed = 1;
+const int shutterOpening = 2;
+const int shutterClosing = 3;
 const int shutterError = 4;
 const int atPark = 0;
 const int unPark = 1;

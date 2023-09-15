@@ -44,15 +44,15 @@ function onMessage(event) {
         roofImage.src = "ROROpen.jpg";
         roofPositionName = "Opened";
         break;
-      case 1: // shutterOpening
-      case 2: // shutterClosing
+      case 1: // shutterClosed
+        roofImage.src = "RORClosed.jpg";
+        roofPositionName = "Closed";
+        break;
+      case 2: // shutterOpening
+      case 3: // shutterClosing
         roofImage.src = "RORMoving.gif";
         roofPositionName = "Moving";
         break;
-      case 3: // shutterClosed
-        roofImage.src = "RORClosed.jpg";
-        roofPositionName = "Closed";
-        break;        
       case 4: // shutterError
         roofImage.src = "RORUnknown.jpg";
         roofPositionName = "Unknown";
@@ -69,27 +69,26 @@ function onMessage(event) {
   var scopeStatusTextA = document.getElementById('scopeStatusTextA');
   var scopeStatusTextB = document.getElementById('scopeStatusTextB');
   var parkPosition = obj.status["IsScopeParkSafe"];
-  switch(parkPosition) 
-  {
-  case 0:
-    scopeStatusTextA.innerHTML = "&nbsp;is Parked.&nbsp;&nbsp;";
-    scopeStatusTextB.innerHTML = "&nbsp;&nbspCan move roof.&nbsp;";
-    ledElementRed[0].style.display = "none";
-    ledElementGreen[0].style.display = "block";
-    isScopeParked = true;
-    document.getElementById('buttonID').disabled = false;
-    document.getElementById('buttonID').setAttribute("style", "background-color: green");
-    break;
- case 1:
-    scopeStatusTextA.innerHTML = "&nbsp;is NOT Parked.&nbsp;";
-    scopeStatusTextB.innerHTML = "Cannot move roof.";
-    ledElementRed[0].style.display = "block";
-    ledElementGreen[0].style.display = "none";
-    isScopeParked = false;
-    document.getElementById('buttonID').disabled = true;
-    document.getElementById('buttonID').setAttribute("style", "background-color: black");
-    break;
-  default:
+  switch (parkPosition) {
+    case 0:
+      scopeStatusTextA.innerHTML = "&nbsp;is Parked.&nbsp;&nbsp;";
+      scopeStatusTextB.innerHTML = "&nbsp;&nbspCan move roof.&nbsp;";
+      ledElementRed[0].style.display = "none";
+      ledElementGreen[0].style.display = "block";
+      isScopeParked = true;
+      document.getElementById('buttonID').disabled = false;
+      document.getElementById('buttonID').setAttribute("style", "background-color: green");
+      break;
+    case 1:
+      scopeStatusTextA.innerHTML = "&nbsp;is NOT Parked.&nbsp;";
+      scopeStatusTextB.innerHTML = "Cannot move roof.";
+      ledElementRed[0].style.display = "block";
+      ledElementGreen[0].style.display = "none";
+      isScopeParked = false;
+      document.getElementById('buttonID').disabled = true;
+      document.getElementById('buttonID').setAttribute("style", "background-color: black");
+      break;
+    default:
   }
 }
 

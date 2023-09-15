@@ -1,6 +1,7 @@
 #ifndef RORWEBSERVER_H
 #define RORWEBSERVER_H
 
+#include <inttypes.h>
 #include "sensorBME280Structure.h"
 #include "settings.h"
 #include "ror_controller.h"
@@ -12,17 +13,6 @@ struct RORJsonStruct
   ROR_Status currentRorStatus;
 };
 
-typedef struct
-{
-  bool idExist;
-  int id; /* used for switch ID */
-  bool stateExist;
-  bool state; /* used for setswitch */
-  bool intValueExist;
-  int intValue; /* used for setswitchvalue */
-  bool nameExist;
-  String name; /* used for set switch name */
-} switchAlpacaParameters;
 
 /* ALPACA COMMON DATA */
 struct AlpacaCommonData
@@ -31,7 +21,8 @@ struct AlpacaCommonData
   uint32_t serverTransactionID = 0;
   uint32_t clientID;
   bool boConnect;
-  switchAlpacaParameters switches;
+  char actionName[20];
+  char actionParameters[20];
 };
 
 const char Alp_Value[] PROGMEM = "\"Value\":";
@@ -65,6 +56,8 @@ public:
   void setGateway(char *aAddress);
   bool getIsOSCpulseTriggered(void);
   void resetIsOSCpulseTriggered(void);
+  void AscomMethodNotImplemented(AsyncWebServerRequest *request);
+  void AscomNoActions(AsyncWebServerRequest *request);
 
 private:
   char ssid[25];
@@ -78,12 +71,8 @@ private:
   const long interval = 10000; // interval to wait for Wi-Fi connection (milliseconds)
 
   uint32_t _ServerTransactionID = 0;
-  char _ServerTransactionIDStr[11];
-
   uint32_t getAndIncrementServerTransactionID(void);
-  char *getServerTransactionIDStr();
   uint32_t getServerTransactionID();
-
   boolean rorwebserverDebug;
   RORJsonStruct rorjasonstrut;
   AsyncWebServer *rorWebServer;
@@ -97,6 +86,9 @@ private:
   void PutAlpArguments(AsyncWebServerRequest *request, const uint8_t *data, size_t len);
   void AlpacaHeaderSchema(AsyncResponseStream *response, AlpacaCommonData parameters);
   void AlpacaNoErrorSchema(AsyncResponseStream *response, bool comma = true);
+  void AscomPropertyNotImplemented(AsyncWebServerRequest *request);
+
+  char* createJsonTempHumidity(void);
 };
 
 #endif
