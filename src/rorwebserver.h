@@ -88,7 +88,7 @@ private:
   void AlpacaNoErrorSchema(AsyncResponseStream *response, bool comma = true);
   void AscomPropertyNotImplemented(AsyncWebServerRequest *request);
 
-  char* createJsonTempHumidity(void);
+  void createJsonTempHumidity(AsyncResponseStream *response);
 };
 
 #endif

@@ -379,8 +379,7 @@ void RORWebServer::initWebServer()
         response->print(",\"Value\": ");
         if (strcmp(AlpacaData.actionName, "obvservingcondition") == 0)
         {
-          jsonData = createJsonTempHumidity();
-          response->print(jsonData);
+          createJsonTempHumidity(response);
           isThereAction = true;
         }
         else
@@ -507,39 +506,22 @@ void RORWebServer::setJsonValues(SensorBMe280Structure *aIndoorBME280Struct, Sen
   rorjasonstrut.currentRorStatus.scopeParkSafe.isTrue = aRorStatus->scopeParkSafe.isTrue;
 }
 
-char *RORWebServer::createJsonTempHumidity(void)
+void RORWebServer::createJsonTempHumidity(AsyncResponseStream *response)
 {
-  try
-  {
-    const uint8_t size = JSON_OBJECT_SIZE(12);
-    StaticJsonDocument<size> json;
-    JsonObject root = json.to<JsonObject>();
-    //    root["status"]["indoorTemperature"] = rorjasonstrut.indoorBME280Struct.temperature;
-    root["status"]["indoorTemperature"] = rorjasonstrut.indoorBME280Struct.temperature;
-    root["status"]["indoorHumidity"] = rorjasonstrut.indoorBME280Struct.humidity;
-
-    root["status"]["outdoorTemperature"] = rorjasonstrut.outdoorBME280Struct.temperature;
-    root["status"]["outdoorHumidity"] = rorjasonstrut.outdoorBME280Struct.humidity;
-
-    char *buffer = (char *)malloc(1024); // Allocate memory dynamically
-    if (buffer)
-    {
-      size_t len = serializeJson(json, buffer, 1024);
-      return buffer;
-    }
-    else
-    {
-      Serial.print(F(" -> deserializeJson() failed"));
-      // Handle memory allocation failure
-      return nullptr;
-    }
-  }
-  catch (const std::exception &e)
-  {
-    Serial.print(e.what());
-    Serial.println("\n");
-    return nullptr;
-  }
+  //response->print(F("{"));
+  response->print(F("\"IndoorTemperature:"));
+  response->print(F(rorjasonstrut.indoorBME280Struct.temperature));
+  response->print(F(","));
+  response->print(F("IndoorHumidity:"));
+  response->print(F(rorjasonstrut.indoorBME280Struct.humidity));
+  response->print(F(","));  
+  response->print(F("OutdoorTemperature:"));
+  response->print(F(rorjasonstrut.outdoorBME280Struct.temperature));
+  response->print(F(","));  
+  response->print(F("OutdoorHumidity:"));
+  response->print(F(rorjasonstrut.outdoorBME280Struct.humidity));
+  response->print(F("\""));  
+  //response->print(F("\"}"));
 }
 
 void RORWebServer::notifyClients()
@@ -666,7 +648,7 @@ void RORWebServer::GetAlpArguments(AsyncWebServerRequest *request)
   AlpacaData.clientTransactionID = 0;
   AlpacaData.boConnect = false;
   AlpacaData.actionName[0] = '\0';
-  AlpacaData.actionParameters[0] = '\0';  
+  AlpacaData.actionParameters[0] = '\0';
 
   // Handle GET request
   // Serial.println("RORWebServer::GetAlpArguments() HTTP_GET");
