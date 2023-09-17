@@ -360,7 +360,7 @@ void RORWebServer::initWebServer()
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
         AlpacaNoErrorSchema(response);
-        response->print("\"Value\": [\"obvservingcondition\"]}");
+        response->print("\"Value\":\"[obvservingcondition]\"}");
         request->send(response); });
 
   rorWebServer->on(
@@ -509,7 +509,7 @@ void RORWebServer::setJsonValues(SensorBMe280Structure *aIndoorBME280Struct, Sen
 void RORWebServer::createJsonTempHumidity(AsyncResponseStream *response)
 {
   //response->print(F("{"));
-  response->print(F("[\"IndoorTemperature:"));
+  response->print(F("\"[IndoorTemperature:"));
   response->print(F(rorjasonstrut.indoorBME280Struct.temperature));
   response->print(F(","));
   response->print(F("IndoorHumidity:"));
@@ -520,7 +520,7 @@ void RORWebServer::createJsonTempHumidity(AsyncResponseStream *response)
   response->print(F(","));  
   response->print(F("OutdoorHumidity:"));
   response->print(F(rorjasonstrut.outdoorBME280Struct.humidity));
-  response->print(F("\"]"));  
+  response->print(F("]\""));  
   //response->print(F("\"}"));
 }
 
