@@ -92,7 +92,7 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on connected ");                    
         GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response,AscomData);
+        TransactionIDHeaderSchema(response,AscomData);
         AscomNoErrorSchema(response);
         response->printf("\"Value\": %d}", 1);
         request->send(response); });
@@ -102,7 +102,7 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on description ");                    
         GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         AscomNoErrorSchema(response);
         response->printf("%s\"Roll Off Roof Controller with Web Server\"}", HeaderValue);
         request->send(response); });
@@ -112,7 +112,7 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on driverinfo ");                    
         GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         AscomNoErrorSchema(response);
         response->printf("%s\"RoRWebController\"}", HeaderValue);
         request->send(response); });
@@ -122,7 +122,7 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on deriverversion ");                    
         GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         AscomNoErrorSchema(response);
         response->printf("%s\"%s\"}", HeaderValue, VERSION);
         request->send(response); });
@@ -132,7 +132,7 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on interfaceversion ");                    
         GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         AscomNoErrorSchema(response);
         response->printf("%s1}", HeaderValue);
         request->send(response); });
@@ -142,7 +142,7 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on name ");                    
         GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         AscomNoErrorSchema(response);
         response->printf("%s\"%s\"}", HeaderValue, ObservertoryName);
         request->send(response); });
@@ -152,7 +152,7 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on cansetshutter ");                    
         GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response,AscomData);
+        TransactionIDHeaderSchema(response,AscomData);
         AscomNoErrorSchema(response);
         response->printf("%strue}",HeaderValue);
         request->send(response); });
@@ -162,7 +162,7 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on slewing ");                    
         GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response,AscomData);
+        TransactionIDHeaderSchema(response,AscomData);
         AscomNoErrorSchema(response);
         bool ishutterMoving = false;
         if( rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState == shutterOpening ||
@@ -183,7 +183,7 @@ void RORWebServer::initWebServer()
         // Serial.printf("RORWebServer::rorWebServer->on openshutter AscomData.clientID: %d\n", AscomData.clientID);
         // Serial.printf("RORWebServer::rorWebServer->on openshutter AscomData.clientTransactionID: %d\n", AscomData.clientTransactionID);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         switch (rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState)
         {
         case 0:
@@ -239,7 +239,7 @@ void RORWebServer::initWebServer()
         // Serial.printf("RORWebServer::rorWebServer->on closeshutter AscomData.clientID: %d\n", AscomData.clientID);
         // Serial.printf("RORWebServer::rorWebServer->on closeshutter AscomData.clientTransactionID: %d\n", AscomData.clientTransactionID);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         switch (rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState)
         {
         case 0:
@@ -294,7 +294,7 @@ void RORWebServer::initWebServer()
         // Serial.printf("RORWebServer::rorWebServer->on abortslew AscomData.clientID: %d\n", AscomData.clientID);
         // Serial.printf("RORWebServer::rorWebServer->on abortslew AscomData.clientTransactionID: %d\n", AscomData.clientTransactionID);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         switch (rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState)
         {
         case 0:
@@ -337,7 +337,7 @@ void RORWebServer::initWebServer()
         // Serial.printf("RORWebServer::rorWebServer->on shutterstatus AscomData.clientID: %d\n", AscomData.clientID);
         // Serial.printf("RORWebServer::rorWebServer->on shutterstatus AscomData.clientTransactionID: %d\n", AscomData.clientTransactionID);        
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         AscomNoErrorSchema(response);
         response->printf("\"Value\": %d}", rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState);
         request->send(response); });
@@ -348,7 +348,7 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on atpark ");  
         GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         AscomNoErrorSchema(response);
         response->printf("\"Value\": %d}", rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState);
         request->send(response); });
@@ -358,7 +358,7 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on supportedactions ");  
         GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         AscomNoErrorSchema(response);
         response->print("\"Value\": \"[obvservingcondition]\"}");
         request->send(response); });
@@ -374,12 +374,23 @@ void RORWebServer::initWebServer()
         Serial.println("RORWebServer::rorWebServer->on action ");
         PutAscomArguments(request, data, len);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AscomHeaderSchema(response, AscomData);
+        TransactionIDHeaderSchema(response, AscomData);
         AscomNoErrorSchema(response, false);
         response->print(",\"Value\": ");
         if (strcmp(AscomData.actionName, "obvservingcondition") == 0)
         {
-          createJsonTempHumidity(response);
+          response->print(F("\"[IndoorTemperature:"));
+          response->print(F(rorjasonstrut.indoorBME280Struct.temperature));
+          response->print(F(","));
+          response->print(F("IndoorHumidity:"));
+          response->print(F(rorjasonstrut.indoorBME280Struct.humidity));
+          response->print(F(","));  
+          response->print(F("OutdoorTemperature:"));
+          response->print(F(rorjasonstrut.outdoorBME280Struct.temperature));
+          response->print(F(","));  
+          response->print(F("OutdoorHumidity:"));
+          response->print(F(rorjasonstrut.outdoorBME280Struct.humidity));
+          response->print(F("]\""));  
           isThereAction = true;
         }
         else
@@ -490,38 +501,10 @@ void RORWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
 // Send BME280 sensor readings over event source
 void RORWebServer::setJsonValues(SensorBMe280Structure *aIndoorBME280Struct, SensorBMe280Structure *aOutdoorBME280Struct, ROR_Status *aRorStatus)
 {
-  strcpy(rorjasonstrut.indoorBME280Struct.altitudeMeter, aIndoorBME280Struct->altitudeMeter);
-  strcpy(rorjasonstrut.indoorBME280Struct.altitudeFeet, aIndoorBME280Struct->altitudeFeet);
-  strcpy(rorjasonstrut.indoorBME280Struct.humidity, aIndoorBME280Struct->humidity);
-  strcpy(rorjasonstrut.indoorBME280Struct.pressure, aIndoorBME280Struct->pressure);
-  strcpy(rorjasonstrut.indoorBME280Struct.temperature, aIndoorBME280Struct->temperature);
-  strcpy(rorjasonstrut.outdoorBME280Struct.altitudeMeter, aOutdoorBME280Struct->altitudeMeter);
-  strcpy(rorjasonstrut.outdoorBME280Struct.altitudeFeet, aOutdoorBME280Struct->altitudeFeet);
-  strcpy(rorjasonstrut.outdoorBME280Struct.humidity, aOutdoorBME280Struct->humidity);
-  strcpy(rorjasonstrut.outdoorBME280Struct.pressure, aOutdoorBME280Struct->pressure);
-  strcpy(rorjasonstrut.outdoorBME280Struct.temperature, aOutdoorBME280Struct->temperature);
-  rorjasonstrut.currentRorStatus.rorCurrentPosition.isTrue = aRorStatus->rorCurrentPosition.isTrue;
-  rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState = aRorStatus->rorCurrentPosition.shutterState;
-  rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState = aRorStatus->scopeParkSafe.shutterState;
-  rorjasonstrut.currentRorStatus.scopeParkSafe.isTrue = aRorStatus->scopeParkSafe.isTrue;
-}
-
-void RORWebServer::createJsonTempHumidity(AsyncResponseStream *response)
-{
-  //response->print(F("{"));
-  response->print(F("\"[IndoorTemperature:"));
-  response->print(F(rorjasonstrut.indoorBME280Struct.temperature));
-  response->print(F(","));
-  response->print(F("IndoorHumidity:"));
-  response->print(F(rorjasonstrut.indoorBME280Struct.humidity));
-  response->print(F(","));  
-  response->print(F("OutdoorTemperature:"));
-  response->print(F(rorjasonstrut.outdoorBME280Struct.temperature));
-  response->print(F(","));  
-  response->print(F("OutdoorHumidity:"));
-  response->print(F(rorjasonstrut.outdoorBME280Struct.humidity));
-  response->print(F("]\""));  
-  //response->print(F("\"}"));
+  rorjasonstrut.indoorBME280Struct = *aIndoorBME280Struct;
+  rorjasonstrut.outdoorBME280Struct = *aOutdoorBME280Struct;
+  rorjasonstrut.currentRorStatus.rorCurrentPosition = aRorStatus->rorCurrentPosition;
+  rorjasonstrut.currentRorStatus.scopeParkSafe = aRorStatus->scopeParkSafe;
 }
 
 void RORWebServer::notifyClients()
@@ -585,12 +568,12 @@ void RORWebServer::notFound(AsyncWebServerRequest *request)
 
 //  Apaca Stuff
 
-void RORWebServer::AscomHeaderSchema(AsyncResponseStream *response, AscomCommonData parameters)
+void RORWebServer::TransactionIDHeaderSchema(AsyncResponseStream *response, AscomCommonData parameters)
 {
   response->print(F("{\"ClientTransactionID\":"));
   response->print(parameters.clientTransactionID);
   response->print(F(",\"ServerTransactionID\":"));
-  parameters.serverTransactionID = getServerTransactionID();
+  parameters.serverTransactionID = getAndIncrementServerTransactionID();
   response->print(parameters.serverTransactionID);
   response->print(F(","));
 }
@@ -702,12 +685,6 @@ uint32_t RORWebServer::getAndIncrementServerTransactionID(void)
   {
     _ServerTransactionID = 1;
   }
-  return _ServerTransactionID;
-}
-
-uint32_t RORWebServer::getServerTransactionID(void)
-{
-  getAndIncrementServerTransactionID();
   return _ServerTransactionID;
 }
 

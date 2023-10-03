@@ -13,7 +13,6 @@ struct RORJsonStruct
   ROR_Status currentRorStatus;
 };
 
-
 /* ALPACA COMMON DATA */
 struct AscomCommonData
 {
@@ -58,6 +57,12 @@ public:
   void resetIsOSCpulseTriggered(void);
   void AscomMethodNotImplemented(AsyncWebServerRequest *request);
   void AscomNoActions(AsyncWebServerRequest *request);
+  void GetAscomArguments(AsyncWebServerRequest *request);
+  void PutAscomArguments(AsyncWebServerRequest *request, const uint8_t *data, size_t len);
+  void TransactionIDHeaderSchema(AsyncResponseStream *response, AscomCommonData parameters);
+  void AscomNoErrorSchema(AsyncResponseStream *response, bool comma = true);
+  void AscomPropertyNotImplemented(AsyncWebServerRequest *request);
+
 
 private:
   char ssid[25];
@@ -72,7 +77,6 @@ private:
 
   uint32_t _ServerTransactionID = 0;
   uint32_t getAndIncrementServerTransactionID(void);
-  uint32_t getServerTransactionID();
   boolean rorwebserverDebug;
   RORJsonStruct rorjasonstrut;
   AsyncWebServer *rorWebServer;
@@ -82,13 +86,6 @@ private:
   void doOSCPulseTrigger(void);
   // being of Ascom stuff
   AscomCommonData AscomData;
-  void GetAscomArguments(AsyncWebServerRequest *request);
-  void PutAscomArguments(AsyncWebServerRequest *request, const uint8_t *data, size_t len);
-  void AscomHeaderSchema(AsyncResponseStream *response, AscomCommonData parameters);
-  void AscomNoErrorSchema(AsyncResponseStream *response, bool comma = true);
-  void AscomPropertyNotImplemented(AsyncWebServerRequest *request);
-
-  void createJsonTempHumidity(AsyncResponseStream *response);
 };
 
 #endif

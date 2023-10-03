@@ -41,20 +41,4 @@ void SensorBME280::getBME280Readings(SensorBMe280Structure *aStruct)
     // Altitude (in feet)
     float altitudeFeet = altitude * XMETERTOFEET;
     snprintf(aStruct->altitudeFeet, sizeof(aStruct->altitudeFeet), "%.2f", altitudeFeet);
-
-    if (deviceDebug)
-    {
-        Serial.print("SensorBME280::getBME280Readings(SensorBMe280Structure *aStrut) deviceName: ");
-        Serial.println(deviceName);
-        Serial.print("  Temperature: ");
-        Serial.print(temperature);
-        Serial.print("  Humidity: ");
-        Serial.print(humidity);
-        Serial.print("  Pressure: ");
-        Serial.print(pressure);
-        Serial.print("  Altitude: ");
-        Serial.print(altitude);
-        Serial.print("  AltitudeFeet: ");
-        Serial.println(altitudeFeet);
-    }
 }
