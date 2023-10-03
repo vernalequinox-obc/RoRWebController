@@ -7,7 +7,7 @@
 #include "ArduinoJson.h"
 #include "SPIFFS.h"
 
-#define VERSION 0.14
+#define VERSION 0.15
 #define WEBUPDATE 3000
 const char ObservertoryName[] = "Vernal Equinox";
 

@@ -93,8 +93,8 @@ void RORWebServer::initWebServer()
         GetAlpArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response,AlpacaData);
-        AlpacaNoErrorSchema(response,false);
-        response->printf("}");
+        AlpacaNoErrorSchema(response);
+        response->printf("\"Value\": %d}", 1);
         request->send(response); });
 
   rorWebServer->on("/api/v1/dome/0/description", HTTP_GET, [this](AsyncWebServerRequest *request)
@@ -360,7 +360,7 @@ void RORWebServer::initWebServer()
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         AlpacaHeaderSchema(response, AlpacaData);
         AlpacaNoErrorSchema(response);
-        response->print("\"Value\":\"[obvservingcondition]\"}");
+        response->print("\"Value\": \"[obvservingcondition]\"}");
         request->send(response); });
 
   rorWebServer->on(
