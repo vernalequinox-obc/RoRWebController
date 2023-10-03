@@ -15,7 +15,7 @@ struct RORJsonStruct
 
 
 /* ALPACA COMMON DATA */
-struct AlpacaCommonData
+struct AscomCommonData
 {
   uint32_t clientTransactionID;
   uint32_t serverTransactionID = 0;
@@ -25,12 +25,12 @@ struct AlpacaCommonData
   char actionParameters[20];
 };
 
-const char Alp_Value[] PROGMEM = "\"Value\":";
-const char Alp_CliTraId[] PROGMEM = "\"ClientTransactionID\":";
-const char Alp_SerTraId[] PROGMEM = "\"ServerTransactionID\":";
-const char Alp_ErrN[] PROGMEM = "\"ErrorNumber\":";
-const char Alp_ErrM[] PROGMEM = "\"ErrorMessage\":";
-const char Alp_NoErrors[] PROGMEM = "\"ErrorNumber\": 0,\"ErrorMessage\":\"\"";
+const char HeaderValue[] PROGMEM = "\"Value\":";
+const char HeaderCliTraId[] PROGMEM = "\"ClientTransactionID\":";
+const char HeaderSerTraId[] PROGMEM = "\"ServerTransactionID\":";
+const char HeaderErrN[] PROGMEM = "\"ErrorNumber\":";
+const char HeaderErrM[] PROGMEM = "\"ErrorMessage\":";
+const char HeaderNoErrors[] PROGMEM = "\"ErrorNumber\": 0,\"ErrorMessage\":\"\"";
 
 class RORWebServer
 {
@@ -80,12 +80,12 @@ private:
   bool isOSCpulseTriggered;
 
   void doOSCPulseTrigger(void);
-  // being of Alpaca stuff
-  AlpacaCommonData AlpacaData;
-  void GetAlpArguments(AsyncWebServerRequest *request);
-  void PutAlpArguments(AsyncWebServerRequest *request, const uint8_t *data, size_t len);
-  void AlpacaHeaderSchema(AsyncResponseStream *response, AlpacaCommonData parameters);
-  void AlpacaNoErrorSchema(AsyncResponseStream *response, bool comma = true);
+  // being of Ascom stuff
+  AscomCommonData AscomData;
+  void GetAscomArguments(AsyncWebServerRequest *request);
+  void PutAscomArguments(AsyncWebServerRequest *request, const uint8_t *data, size_t len);
+  void AscomHeaderSchema(AsyncResponseStream *response, AscomCommonData parameters);
+  void AscomNoErrorSchema(AsyncResponseStream *response, bool comma = true);
   void AscomPropertyNotImplemented(AsyncWebServerRequest *request);
 
   void createJsonTempHumidity(AsyncResponseStream *response);

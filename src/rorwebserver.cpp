@@ -90,87 +90,87 @@ void RORWebServer::initWebServer()
   rorWebServer->on("/api/v1/dome/0/connected", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
         Serial.println("RORWebServer::rorWebServer->on connected ");                    
-        GetAlpArguments(request);
+        GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response,AlpacaData);
-        AlpacaNoErrorSchema(response);
+        AscomHeaderSchema(response,AscomData);
+        AscomNoErrorSchema(response);
         response->printf("\"Value\": %d}", 1);
         request->send(response); });
 
   rorWebServer->on("/api/v1/dome/0/description", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
         Serial.println("RORWebServer::rorWebServer->on description ");                    
-        GetAlpArguments(request);
+        GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
-        AlpacaNoErrorSchema(response);
-        response->printf("%s\"Roll Off Roof Controller with Web Server\"}", Alp_Value);
+        AscomHeaderSchema(response, AscomData);
+        AscomNoErrorSchema(response);
+        response->printf("%s\"Roll Off Roof Controller with Web Server\"}", HeaderValue);
         request->send(response); });
 
   rorWebServer->on("/api/v1/dome/0/driverinfo", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
         Serial.println("RORWebServer::rorWebServer->on driverinfo ");                    
-        GetAlpArguments(request);
+        GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
-        AlpacaNoErrorSchema(response);
-        response->printf("%s\"RoRWebController\"}", Alp_Value);
+        AscomHeaderSchema(response, AscomData);
+        AscomNoErrorSchema(response);
+        response->printf("%s\"RoRWebController\"}", HeaderValue);
         request->send(response); });
 
   rorWebServer->on("/api/v1/dome/0/driverversion", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
         Serial.println("RORWebServer::rorWebServer->on deriverversion ");                    
-        GetAlpArguments(request);
+        GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
-        AlpacaNoErrorSchema(response);
-        response->printf("%s\"%s\"}", Alp_Value, VERSION);
+        AscomHeaderSchema(response, AscomData);
+        AscomNoErrorSchema(response);
+        response->printf("%s\"%s\"}", HeaderValue, VERSION);
         request->send(response); });
 
   rorWebServer->on("/api/v1/dome/0/interfaceversion", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
         Serial.println("RORWebServer::rorWebServer->on interfaceversion ");                    
-        GetAlpArguments(request);
+        GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
-        AlpacaNoErrorSchema(response);
-        response->printf("%s1}", Alp_Value);
+        AscomHeaderSchema(response, AscomData);
+        AscomNoErrorSchema(response);
+        response->printf("%s1}", HeaderValue);
         request->send(response); });
 
   rorWebServer->on("/api/v1/dome/0/name", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
         Serial.println("RORWebServer::rorWebServer->on name ");                    
-        GetAlpArguments(request);
+        GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
-        AlpacaNoErrorSchema(response);
-        response->printf("%s\"%s\"}", Alp_Value, ObservertoryName);
+        AscomHeaderSchema(response, AscomData);
+        AscomNoErrorSchema(response);
+        response->printf("%s\"%s\"}", HeaderValue, ObservertoryName);
         request->send(response); });
 
   rorWebServer->on("/api/v1/dome/0/cansetshutter", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
         Serial.println("RORWebServer::rorWebServer->on cansetshutter ");                    
-        GetAlpArguments(request);
+        GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response,AlpacaData);
-        AlpacaNoErrorSchema(response);
-        response->printf("%strue}",Alp_Value);
+        AscomHeaderSchema(response,AscomData);
+        AscomNoErrorSchema(response);
+        response->printf("%strue}",HeaderValue);
         request->send(response); });
 
   rorWebServer->on("/api/v1/dome/0/slewing", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
         Serial.println("RORWebServer::rorWebServer->on slewing ");                    
-        GetAlpArguments(request);
+        GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response,AlpacaData);
-        AlpacaNoErrorSchema(response);
+        AscomHeaderSchema(response,AscomData);
+        AscomNoErrorSchema(response);
         bool ishutterMoving = false;
         if( rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState == shutterOpening ||
         rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState == shutterOpening )
         {
           ishutterMoving = true;
         }
-        ishutterMoving ? response->printf("%sfalse}",Alp_Value) : response->printf("%strue}",Alp_Value);
+        ishutterMoving ? response->printf("%sfalse}",HeaderValue) : response->printf("%strue}",HeaderValue);
         request->send(response); });
 
   // Open shutter or otherwise expose telescope to the sky.
@@ -179,39 +179,39 @@ void RORWebServer::initWebServer()
       [this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
       {
         Serial.println("RORWebServer::rorWebServer->on openshutter ");
-        PutAlpArguments(request, data, len);
-        // Serial.printf("RORWebServer::rorWebServer->on openshutter AlpacaData.clientID: %d\n", AlpacaData.clientID);
-        // Serial.printf("RORWebServer::rorWebServer->on openshutter AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);
+        PutAscomArguments(request, data, len);
+        // Serial.printf("RORWebServer::rorWebServer->on openshutter AscomData.clientID: %d\n", AscomData.clientID);
+        // Serial.printf("RORWebServer::rorWebServer->on openshutter AscomData.clientTransactionID: %d\n", AscomData.clientTransactionID);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
+        AscomHeaderSchema(response, AscomData);
         switch (rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState)
         {
         case 0:
           switch (rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState)
           {
           case shutterOpen:
-            response->printf("%s1035,%s\"Shutter is already open\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Shutter is already open\"", HeaderErrN, HeaderErrM);
             break;
           case shutterClosed:
-            AlpacaNoErrorSchema(response, false);
+            AscomNoErrorSchema(response, false);
             doOSCPulseTrigger(); // Call the trigger function
             break;
           case shutterOpening:
           case shutterClosing:
-            response->printf("%s1035,%s\"Shutter currently moving\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Shutter currently moving\"", HeaderErrN, HeaderErrM);
             break;
           case shutterError:
-            response->printf("%s1035,%s\"Shutter Error and Unknown Location\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Shutter Error and Unknown Location\"", HeaderErrN, HeaderErrM);
             break;
           default:
-            response->printf("%s1035,%s\"Unknown Shutter or Park State\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Unknown Shutter or Park State\"", HeaderErrN, HeaderErrM);
           }
           break;
         case 1:
-          response->printf("%s1035,%s\"Mount unParked Shutter cannot operate\"", Alp_ErrN, Alp_ErrM);
+          response->printf("%s1035,%s\"Mount unParked Shutter cannot operate\"", HeaderErrN, HeaderErrM);
           break;
         default:
-          response->printf("%s1035,%s\"Unknown Shutter or Park State\"", Alp_ErrN, Alp_ErrM);
+          response->printf("%s1035,%s\"Unknown Shutter or Park State\"", HeaderErrN, HeaderErrM);
           break;
         }
         response->print(F("}"));
@@ -235,39 +235,39 @@ void RORWebServer::initWebServer()
                 Serial.println("RORWebServer::rorWebServer->on closeshutter jsondata: " + jsondata);
         */
         Serial.println("RORWebServer::rorWebServer->on closeshutter ");
-        PutAlpArguments(request, data, len);
-        // Serial.printf("RORWebServer::rorWebServer->on closeshutter AlpacaData.clientID: %d\n", AlpacaData.clientID);
-        // Serial.printf("RORWebServer::rorWebServer->on closeshutter AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);
+        PutAscomArguments(request, data, len);
+        // Serial.printf("RORWebServer::rorWebServer->on closeshutter AscomData.clientID: %d\n", AscomData.clientID);
+        // Serial.printf("RORWebServer::rorWebServer->on closeshutter AscomData.clientTransactionID: %d\n", AscomData.clientTransactionID);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
+        AscomHeaderSchema(response, AscomData);
         switch (rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState)
         {
         case 0:
           switch (rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState)
           {
           case shutterOpen:
-            AlpacaNoErrorSchema(response, false);
+            AscomNoErrorSchema(response, false);
             doOSCPulseTrigger(); // Call the trigger function
             break;
           case shutterClosed:
-            response->printf("%s1035,%s\"Shutter is already closed\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Shutter is already closed\"", HeaderErrN, HeaderErrM);
             break;
           case shutterOpening:
           case shutterClosing:
-            response->printf("%s1035,%s\"Shutter currently moving\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Shutter currently moving\"", HeaderErrN, HeaderErrM);
             break;
           case shutterError:
-            response->printf("%s1035,%s\"Shutter Error and Unknown Location\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Shutter Error and Unknown Location\"", HeaderErrN, HeaderErrM);
             break;
           default:
-            response->printf("%s1035,%s\"Unknown Shutter or Park State\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Unknown Shutter or Park State\"", HeaderErrN, HeaderErrM);
           }
           break;
         case 1:
-          response->printf("%s1035,%s\"Mount unParked Shutter cannot operate\"", Alp_ErrN, Alp_ErrM);
+          response->printf("%s1035,%s\"Mount unParked Shutter cannot operate\"", HeaderErrN, HeaderErrM);
           break;
         default:
-          response->printf("%s1035,%s\"Unknown Shutter or Park State\"", Alp_ErrN, Alp_ErrM);
+          response->printf("%s1035,%s\"Unknown Shutter or Park State\"", HeaderErrN, HeaderErrM);
           break;
         }
         response->print(F("}"));
@@ -290,11 +290,11 @@ void RORWebServer::initWebServer()
                 }
                 Serial.println("RORWebServer::rorWebServer->on closeshutter jsondata: " + jsondata);
         */
-        PutAlpArguments(request, data, len);
-        // Serial.printf("RORWebServer::rorWebServer->on abortslew AlpacaData.clientID: %d\n", AlpacaData.clientID);
-        // Serial.printf("RORWebServer::rorWebServer->on abortslew AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);
+        PutAscomArguments(request, data, len);
+        // Serial.printf("RORWebServer::rorWebServer->on abortslew AscomData.clientID: %d\n", AscomData.clientID);
+        // Serial.printf("RORWebServer::rorWebServer->on abortslew AscomData.clientTransactionID: %d\n", AscomData.clientTransactionID);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
+        AscomHeaderSchema(response, AscomData);
         switch (rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState)
         {
         case 0:
@@ -302,25 +302,25 @@ void RORWebServer::initWebServer()
           {
           case shutterOpen:
           case shutterClosed:
-            response->printf("%s1035,%s\"Shutter is not moving\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Shutter is not moving\"", HeaderErrN, HeaderErrM);
             break;
           case shutterOpening:
           case shutterClosing:
-            AlpacaNoErrorSchema(response, false);
+            AscomNoErrorSchema(response, false);
             doOSCPulseTrigger(); // Call the trigger function
             break;
           case shutterError:
-            response->printf("%s1035,%s\"Shutter Error and Unknown Location\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Shutter Error and Unknown Location\"", HeaderErrN, HeaderErrM);
             break;
           default:
-            response->printf("%s1035,%s\"Unknown Shutter or Park State\"", Alp_ErrN, Alp_ErrM);
+            response->printf("%s1035,%s\"Unknown Shutter or Park State\"", HeaderErrN, HeaderErrM);
           }
           break;
         case 1:
-          response->printf("%s1035,%s\"Mount unParked Shutter cannot operate\"", Alp_ErrN, Alp_ErrM);
+          response->printf("%s1035,%s\"Mount unParked Shutter cannot operate\"", HeaderErrN, HeaderErrM);
           break;
         default:
-          response->printf("%s1035,%s\"Unknown Shutter or Park State\"", Alp_ErrN, Alp_ErrM);
+          response->printf("%s1035,%s\"Unknown Shutter or Park State\"", HeaderErrN, HeaderErrM);
           break;
         }
         response->print(F("}"));
@@ -333,12 +333,12 @@ void RORWebServer::initWebServer()
   rorWebServer->on("/api/v1/dome/0/shutterstatus", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
         Serial.println("RORWebServer::rorWebServer->on shutterstatus");                      
-        GetAlpArguments(request);
-        // Serial.printf("RORWebServer::rorWebServer->on shutterstatus AlpacaData.clientID: %d\n", AlpacaData.clientID);
-        // Serial.printf("RORWebServer::rorWebServer->on shutterstatus AlpacaData.clientTransactionID: %d\n", AlpacaData.clientTransactionID);        
+        GetAscomArguments(request);
+        // Serial.printf("RORWebServer::rorWebServer->on shutterstatus AscomData.clientID: %d\n", AscomData.clientID);
+        // Serial.printf("RORWebServer::rorWebServer->on shutterstatus AscomData.clientTransactionID: %d\n", AscomData.clientTransactionID);        
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
-        AlpacaNoErrorSchema(response);
+        AscomHeaderSchema(response, AscomData);
+        AscomNoErrorSchema(response);
         response->printf("\"Value\": %d}", rorjasonstrut.currentRorStatus.rorCurrentPosition.shutterState);
         request->send(response); });
 
@@ -346,20 +346,20 @@ void RORWebServer::initWebServer()
   rorWebServer->on("/api/v1/dome/0/atpark", HTTP_GET, [this](AsyncWebServerRequest *request)
                    {
         Serial.println("RORWebServer::rorWebServer->on atpark ");  
-        GetAlpArguments(request);
+        GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
-        AlpacaNoErrorSchema(response);
+        AscomHeaderSchema(response, AscomData);
+        AscomNoErrorSchema(response);
         response->printf("\"Value\": %d}", rorjasonstrut.currentRorStatus.scopeParkSafe.shutterState);
         request->send(response); });
 
   rorWebServer->on("/api/v1/dome/0/supportedactions", HTTP_GET, [this](AsyncWebServerRequest *request)
                    { 
         Serial.println("RORWebServer::rorWebServer->on supportedactions ");  
-        GetAlpArguments(request);
+        GetAscomArguments(request);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
-        AlpacaNoErrorSchema(response);
+        AscomHeaderSchema(response, AscomData);
+        AscomNoErrorSchema(response);
         response->print("\"Value\": \"[obvservingcondition]\"}");
         request->send(response); });
 
@@ -372,12 +372,12 @@ void RORWebServer::initWebServer()
         char *printJsonOut;
         char *jsonData;
         Serial.println("RORWebServer::rorWebServer->on action ");
-        PutAlpArguments(request, data, len);
+        PutAscomArguments(request, data, len);
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        AlpacaHeaderSchema(response, AlpacaData);
-        AlpacaNoErrorSchema(response, false);
+        AscomHeaderSchema(response, AscomData);
+        AscomNoErrorSchema(response, false);
         response->print(",\"Value\": ");
-        if (strcmp(AlpacaData.actionName, "obvservingcondition") == 0)
+        if (strcmp(AscomData.actionName, "obvservingcondition") == 0)
         {
           createJsonTempHumidity(response);
           isThereAction = true;
@@ -585,7 +585,7 @@ void RORWebServer::notFound(AsyncWebServerRequest *request)
 
 //  Apaca Stuff
 
-void RORWebServer::AlpacaHeaderSchema(AsyncResponseStream *response, AlpacaCommonData parameters)
+void RORWebServer::AscomHeaderSchema(AsyncResponseStream *response, AscomCommonData parameters)
 {
   response->print(F("{\"ClientTransactionID\":"));
   response->print(parameters.clientTransactionID);
@@ -595,13 +595,13 @@ void RORWebServer::AlpacaHeaderSchema(AsyncResponseStream *response, AlpacaCommo
   response->print(F(","));
 }
 
-void RORWebServer::PutAlpArguments(AsyncWebServerRequest *request, const uint8_t *data, size_t len)
+void RORWebServer::PutAscomArguments(AsyncWebServerRequest *request, const uint8_t *data, size_t len)
 {
-  AlpacaData.clientID = 0;
-  AlpacaData.clientTransactionID = 0;
-  AlpacaData.boConnect = false;
-  AlpacaData.actionName[0] = '\0';
-  AlpacaData.actionParameters[0] = '\0';
+  AscomData.clientID = 0;
+  AscomData.clientTransactionID = 0;
+  AscomData.boConnect = false;
+  AscomData.actionName[0] = '\0';
+  AscomData.actionParameters[0] = '\0';
 
   String jsondata;
   for (size_t i = 0; i < len; i++)
@@ -616,8 +616,8 @@ void RORWebServer::PutAlpArguments(AsyncWebServerRequest *request, const uint8_t
     // Check if the JSON contains "ClientID" and "ClientTransactionID"
     if (jsonData.containsKey("clientid") && jsonData.containsKey("clienttransactionid"))
     {
-      AlpacaData.clientID = jsonData["clientid"].as<int>();
-      AlpacaData.clientTransactionID = jsonData["clienttransactionid"].as<int>();
+      AscomData.clientID = jsonData["clientid"].as<int>();
+      AscomData.clientTransactionID = jsonData["clienttransactionid"].as<int>();
     }
     else
     {
@@ -626,35 +626,35 @@ void RORWebServer::PutAlpArguments(AsyncWebServerRequest *request, const uint8_t
     }
     if (jsonData.containsKey("actionname"))
     {
-      strncpy(AlpacaData.actionName, jsonData["actionname"], sizeof(AlpacaData.actionName) - 1);
+      strncpy(AscomData.actionName, jsonData["actionname"], sizeof(AscomData.actionName) - 1);
     }
     if (jsonData.containsKey("actionparameters"))
     {
-      strncpy(AlpacaData.actionParameters, jsonData["actionparameters"], sizeof(AlpacaData.actionParameters) - 1);
+      strncpy(AscomData.actionParameters, jsonData["actionparameters"], sizeof(AscomData.actionParameters) - 1);
     }
   }
   else
   {
-    Serial.print("RORWebServer::PutAlpArguments - deserializeJson(jsonData, jsondata) Error: Failed to parse JSON jsonData: " + jsondata);
+    Serial.print("RORWebServer::PutAscomArguments - deserializeJson(jsonData, jsondata) Error: Failed to parse JSON jsonData: " + jsondata);
     Serial.print(error.c_str());
     Serial.println("\n");
   }
 }
 
-void RORWebServer::GetAlpArguments(AsyncWebServerRequest *request)
+void RORWebServer::GetAscomArguments(AsyncWebServerRequest *request)
 {
-  // Serial.println("RORWebServer::rorWebServer->on GetAlpArguments()");
-  AlpacaData.clientID = 0;
-  AlpacaData.clientTransactionID = 0;
-  AlpacaData.boConnect = false;
-  AlpacaData.actionName[0] = '\0';
-  AlpacaData.actionParameters[0] = '\0';
+  // Serial.println("RORWebServer::rorWebServer->on GetAscomArguments()");
+  AscomData.clientID = 0;
+  AscomData.clientTransactionID = 0;
+  AscomData.boConnect = false;
+  AscomData.actionName[0] = '\0';
+  AscomData.actionParameters[0] = '\0';
 
   // Handle GET request
-  // Serial.println("RORWebServer::GetAlpArguments() HTTP_GET");
+  // Serial.println("RORWebServer::GetAscomArguments() HTTP_GET");
   int paramsNr = request->params();
   String parameter;
-  AlpacaData.serverTransactionID++;
+  AscomData.serverTransactionID++;
   for (int i = 0; i < paramsNr; i++)
   {
     AsyncWebParameter *p = request->getParam(i);
@@ -662,11 +662,11 @@ void RORWebServer::GetAlpArguments(AsyncWebServerRequest *request)
     parameter.toLowerCase();
     if (parameter == "clientid")
     {
-      AlpacaData.clientID = p->value().toInt();
+      AscomData.clientID = p->value().toInt();
     }
     if (parameter == "clienttransactionid")
     {
-      AlpacaData.clientTransactionID = p->value().toInt();
+      AscomData.clientTransactionID = p->value().toInt();
     }
     if (parameter == "connected")
     {
@@ -675,19 +675,19 @@ void RORWebServer::GetAlpArguments(AsyncWebServerRequest *request)
       booleanString.toLowerCase();
       if (booleanString == "true")
       {
-        AlpacaData.boConnect = true;
+        AscomData.boConnect = true;
       }
       else
       {
-        AlpacaData.boConnect = false;
+        AscomData.boConnect = false;
       }
     }
   }
 }
 
-void RORWebServer::AlpacaNoErrorSchema(AsyncResponseStream *response, bool comma)
+void RORWebServer::AscomNoErrorSchema(AsyncResponseStream *response, bool comma)
 {
-  response->printf("%s0,%s\"\"", Alp_ErrN, Alp_ErrM);
+  response->printf("%s0,%s\"\"", HeaderErrN, HeaderErrM);
   if (comma)
   {
     response->print(F(","));
@@ -713,11 +713,11 @@ uint32_t RORWebServer::getServerTransactionID(void)
 
 void RORWebServer::AscomPropertyNotImplemented(AsyncWebServerRequest *request)
 {
-  GetAlpArguments(request);
+  GetAscomArguments(request);
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   response->printf("{%s%d,%s%d,",
-                   Alp_CliTraId, AlpacaData.clientTransactionID,
-                   Alp_SerTraId, AlpacaData.serverTransactionID);
+                   HeaderCliTraId, AscomData.clientTransactionID,
+                   HeaderSerTraId, AscomData.serverTransactionID);
   response->print(F("\"ErrorNumber\":1024,\"ErrorMessage\":\"Property not implemented\""));
   response->print(F("}"));
   request->send(response);
@@ -725,11 +725,11 @@ void RORWebServer::AscomPropertyNotImplemented(AsyncWebServerRequest *request)
 
 void RORWebServer::AscomMethodNotImplemented(AsyncWebServerRequest *request)
 {
-  GetAlpArguments(request);
+  GetAscomArguments(request);
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   response->printf("{%s%d,%s%d,",
-                   Alp_CliTraId, AlpacaData.clientTransactionID,
-                   Alp_SerTraId, AlpacaData.serverTransactionID);
+                   HeaderCliTraId, AscomData.clientTransactionID,
+                   HeaderSerTraId, AscomData.serverTransactionID);
   response->print(F("\"ErrorNumber\":1024,\"ErrorMessage\":\"Method not implemented\""));
   response->print(F("}"));
   request->send(response);
@@ -737,12 +737,12 @@ void RORWebServer::AscomMethodNotImplemented(AsyncWebServerRequest *request)
 
 void RORWebServer::AscomNoActions(AsyncWebServerRequest *request)
 {
-  GetAlpArguments(request);
+  GetAscomArguments(request);
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   response->printf("{%s%d,%s%d,%s",
-                   Alp_CliTraId, AlpacaData.clientTransactionID,
-                   Alp_SerTraId, AlpacaData.serverTransactionID,
-                   Alp_NoErrors);
+                   HeaderCliTraId, AscomData.clientTransactionID,
+                   HeaderSerTraId, AscomData.serverTransactionID,
+                   HeaderNoErrors);
   response->print(F(",\"Value\":[]"));
   response->print(F("}"));
   request->send(response);
