@@ -15,6 +15,10 @@ ROR_Controller::ROR_Controller()
   roofCloseSwitch.setDebounceTime(BUTTON_DEBOUNCE_TIME);
   // roofCloseSwitch.InputButton::setDebug(true);
 
+  // roof Moving LED
+  roofMovingLED.setDevicePin(ROOF_MOVING_LED);
+  roofMovingLED.setDeviceName("roofMovingLED");
+
   scopeUNSafeNotParkedLED.setDevicePin(SCOPE_MOUNT_PARK_NOT_SAFE_LED);
   scopeUNSafeNotParkedLED.setDeviceName("scopeUNSafeNotParkedLED");
   // scopeUNSafeNotParkedLED.setDebug(true);
@@ -34,8 +38,11 @@ ROR_Controller::ROR_Controller()
   // oscPushButton.setDeviceEnabledButton(false);
   // oscPushButton.InputButton::setDebug(true);
 
+  relayControl.oscTriggerRelay.updateRelay(false);
+  relayControl.scopeMountParkSafeRelay.updateRelay(false);
   roofOpenSwitch.begin();
   roofCloseSwitch.begin();
+  roofMovingLED.begin();
   oscPushButton.begin();
   scopeMountParkSwitch.begin();
   scopeUNSafeNotParkedLED.begin();
@@ -78,15 +85,11 @@ const int unPark = 1;
 // Updates the RoR Structure with current status
 void ROR_Controller::updateRORStatus()
 {
-  // Initialize your variables if necessary
-  // lastShutterState = shutterClosed; // For example
-  // rorMovingTimeCounter = 0;
-  // rorMovingTimeReached = 100; // Some reasonable value
-
   if (isOpenSensorClosed)
   {
     // The Open sensor is true, set the state to shutterOpen (0)
     currentRorStatus.rorCurrentPosition.shutterState = shutterOpen;
+    roofMovingLED.updateLed(false);
     lastShutterState = shutterOpen;
     rorMovingTimeCounter = 0;
   }
@@ -94,6 +97,7 @@ void ROR_Controller::updateRORStatus()
   {
     // The Close sensor is true, set the state to shutterClosed (1)
     currentRorStatus.rorCurrentPosition.shutterState = shutterClosed;
+    roofMovingLED.updateLed(false);
     lastShutterState = shutterClosed;
     rorMovingTimeCounter = 0;
   }
@@ -101,18 +105,21 @@ void ROR_Controller::updateRORStatus()
   {
     // The roof has started Closing (3)
     currentRorStatus.rorCurrentPosition.shutterState = shutterClosing;
+    roofMovingLED.updateLed(true);
     rorMovingTimeCounter++;
   }
   else if (lastShutterState == shutterClosed)
   {
     // The roof has started Opening (2)
     currentRorStatus.rorCurrentPosition.shutterState = shutterOpening;
+    roofMovingLED.updateLed(true);
     rorMovingTimeCounter++;
   }
   // Check if the moving state has exceeded the threshold (4)
   if (rorMovingTimeCounter >= rorMovingTimeReached)
   {
     currentRorStatus.rorCurrentPosition.shutterState = shutterError;
+    roofMovingLED.updateLed(false);
   }
 }
 

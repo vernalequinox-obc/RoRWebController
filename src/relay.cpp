@@ -3,7 +3,7 @@
 Relay::Relay()
 {
     relayCurrentState = LOW;
-    deviceDebug = false;
+    updateRelay(false);
 }
 
 Relay::~Relay()
@@ -27,27 +27,12 @@ void Relay::updateRelay(bool aRelayState)
         relayCurrentState = LOW;
         return;
     }
-    relayCurrentState = aRelayState ? HIGH : LOW;
+    // relayCurrentState = aRelayState ? HIGH : LOW;
+    relayCurrentState = aRelayState ? LOW : HIGH;
     digitalWrite(devicePin, relayCurrentState);
-    if (deviceDebug)
-    {
-        Serial.print("Relay::updateRelay(bool aRelayState) deviceName: ");
-        Serial.print(deviceName);
-        Serial.print("  - devicePin: ");
-        Serial.print(devicePin);
-        Serial.print("  - relayCurrentState: ");
-        Serial.println(relayCurrentState);
-    }
 }
 
 bool Relay::getCurrentRelayState(void)
 {
-    if (deviceDebug)
-    {
-        Serial.print("Relay::getCurrentrelayState(void) deviceName: ");
-        Serial.print(deviceName);
-        Serial.print("  - relayCurrentState: ");
-        Serial.println(relayCurrentState);
-    }
     return relayCurrentState;
 }

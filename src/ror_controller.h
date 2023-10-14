@@ -61,6 +61,7 @@ private:
     InputButtonLEDPulse oscPushButton;
 
     LedLight scopeUNSafeNotParkedLED;
+    LedLight roofMovingLED;
 
     Relay_Control relayControl;
     ROR_Status currentRorStatus;

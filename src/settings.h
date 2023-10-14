@@ -50,6 +50,7 @@ const char STATIC_SUBNET[] = {255, 255, 255, 0};   // Default for AP Setup SubNe
 #define WIFI_NORMAL_OPERATION_LED 12     // GIOP12 - LED for connected to local network
 #define ROOF_CLOSED_LED 15               // GIOP17 - LED for when the closed sensor is on as roof is closed
 #define ROOF_OPEN_LED 14                 // GIOP16 - LED for when the open sensor is on as roof is opened
+#define ROOF_MOVING_LED 32               // GIOP32 - 
 
 #define OSC_BUTTON_LED 13                // GIOP13 - LED for when the OSC button is press
 
@@ -58,11 +59,8 @@ const char STATIC_SUBNET[] = {255, 255, 255, 0};   // Default for AP Setup SubNe
 #define BME_SCL_2 19 // GIOP19 Used for weather outdoor sensor
 #define BME_SDA_2 18 // GIOP18 Used for weather outdoor sensor
 
-// FT232 USB UART for Serial1 to run AT Commands and ASCOM using UART 1 
-#define SERIAL1_RTS1 32         // GIOP32 - 2nd Serial RTS
-#define SERIAL1_CTS1 0         // GIOP12 - 2nd Serial CTS
-#define SERIAL1_RX1 16           // GIOP09 - 2nd Serial RX1 to USB TX UART1
-#define SERIAL1_TX1 17          // GIOP10 - 2nd Serial TX1 to USB RX UART1
-#define SERIAL1_BAUDERATE 9600    // Serial1 baud rate
+
+
+
 
 #endif
