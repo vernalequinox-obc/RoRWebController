@@ -8,7 +8,7 @@
 #include "SPIFFS.h"
 
 #define VERSION 0.15
-#define WEBUPDATE 3000
+#define WEBUPDATE 1000
 const char ObservertoryName[] = "Vernal Equinox";
 
 #define HOLD_BUTTON_DOWN_THRESHOLD_ALEKO 2000      // For Aleko. How long a button must be held before it is triggered.
