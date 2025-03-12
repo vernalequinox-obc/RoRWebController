@@ -1,0 +1,45 @@
+ESP32 Flash Download Tool v3.9.7
+
+
+bootloader.bin 0x00001000
+partitions.bin 0x00008000
+boot_app0.bin  0x0000e000
+firmware.bin   0x00010000
+spiff.bin      0x00290000
+
+
+1. Run Flash Download Tool 
+2. Select Chip Type ESP32
+3. Press OK button
+
+Enter the bin files in the order as shown above and enter the address for each of that bin
+4. Press the ... to browser for the bin file
+5. Entry by copy and paste the address for that bin file
+6. Check the check box to flash the ESP32 for the bin file
+
+7. Set 40M
+8. Set DIO
+9. Check DoNotChgBin
+10. Select COM: which is normally COM1 (you may have to plug and unplug the ESP32 USB cable to find which COM port it is using)
+11. Set BUAD: to 115200
+12. Connect the ESP32 board
+13. Press Start button (Will take a few minutes or more then the progress bar will start. Check the Command Window to see progress.)
+14. Once finished press Stop button
+15. Unplug the ESP32 
+16. Close the ESP32 Flash Download Tool
+
+NOTE: If you need to start over or flash an update, best to ERASE the ESP32 by disconnecting the ESP32, then press the ERASE button, watch the screen to confirm it is running and once FINISH is displayed it done. Recommend to unplug the ESP32 and restart the ESP32 Flash Download Tool.
+
+a. Test the ESP32 by plugging the USB cable
+b. Find the AP setup dialog by doing a Wi-Fi scan for ROR-WIFI-MANAGER then log into that network
+c. Launch a Web browser and enter the URL as 192.168.4.1
+d. Type in the SSID for your home Wi-Fi network
+c. Enter the password for your Wi-Fi network
+* Note: default values can be change to your home Network setup.
+d. Enter a static IP address from your home Network for the ESP32 RoRWebController to use
+e. If needed change the Subnet (Most all system uses this default of 255.255.255.0)
+f. Enter the gateway IP address of your home Wi-Fi router 
+g. Submit to save the change. 
+
+If you do not have anything but the ESP32 run without any wiring, this Test above will let you know it is programmed. Once it is wired the Wi-Fi setup will be written and the AP setup dialog will no longer display.
+
